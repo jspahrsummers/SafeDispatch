@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D01C79651486CBD200289F7A /* SDQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D01C79641486CBD200289F7A /* SDQueueTests.m */; };
 		D01FEA971485EBC200A37CA6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA961485EBC200A37CA6 /* Cocoa.framework */; };
 		D01FEAA11485EBC200A37CA6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D01FEA9F1485EBC200A37CA6 /* InfoPlist.strings */; };
 		D01FEAAD1485EBC200A37CA6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEAAC1485EBC200A37CA6 /* SenTestingKit.framework */; };
 		D01FEAAE1485EBC200A37CA6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA961485EBC200A37CA6 /* Cocoa.framework */; };
 		D01FEAB11485EBC200A37CA6 /* SafeDispatch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA931485EBC200A37CA6 /* SafeDispatch.framework */; };
 		D01FEAB71485EBC200A37CA6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D01FEAB51485EBC200A37CA6 /* InfoPlist.strings */; };
-		D01FEABA1485EBC200A37CA6 /* SafeDispatchTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEAB91485EBC200A37CA6 /* SafeDispatchTests.m */; };
 		D01FEADD1485ECE800A37CA6 /* SDQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEADB1485ECE700A37CA6 /* SDQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D01FEADE1485ECE800A37CA6 /* SDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEADC1485ECE700A37CA6 /* SDQueue.m */; };
 /* End PBXBuildFile section */
@@ -29,6 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D01C79631486CBD200289F7A /* SDQueueTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDQueueTests.h; sourceTree = "<group>"; };
+		D01C79641486CBD200289F7A /* SDQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDQueueTests.m; sourceTree = "<group>"; };
 		D01FEA931485EBC200A37CA6 /* SafeDispatch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SafeDispatch.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D01FEA961485EBC200A37CA6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		D01FEA991485EBC200A37CA6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -42,8 +44,6 @@
 		D01FEAAC1485EBC200A37CA6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		D01FEAB41485EBC200A37CA6 /* SafeDispatchTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SafeDispatchTests-Info.plist"; sourceTree = "<group>"; };
 		D01FEAB61485EBC200A37CA6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		D01FEAB81485EBC200A37CA6 /* SafeDispatchTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SafeDispatchTests.h; sourceTree = "<group>"; };
-		D01FEAB91485EBC200A37CA6 /* SafeDispatchTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SafeDispatchTests.m; sourceTree = "<group>"; };
 		D01FEAC51485EBDA00A37CA6 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		D01FEAC71485EBDA00A37CA6 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		D01FEAC81485EBDA00A37CA6 /* Profile.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Profile.xcconfig; sourceTree = "<group>"; };
@@ -148,8 +148,8 @@
 		D01FEAB21485EBC200A37CA6 /* SafeDispatchTests */ = {
 			isa = PBXGroup;
 			children = (
-				D01FEAB81485EBC200A37CA6 /* SafeDispatchTests.h */,
-				D01FEAB91485EBC200A37CA6 /* SafeDispatchTests.m */,
+				D01C79631486CBD200289F7A /* SDQueueTests.h */,
+				D01C79641486CBD200289F7A /* SDQueueTests.m */,
 				D01FEAB31485EBC200A37CA6 /* Supporting Files */,
 			);
 			path = SafeDispatchTests;
@@ -361,7 +361,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D01FEABA1485EBC200A37CA6 /* SafeDispatchTests.m in Sources */,
+				D01C79651486CBD200289F7A /* SDQueueTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
