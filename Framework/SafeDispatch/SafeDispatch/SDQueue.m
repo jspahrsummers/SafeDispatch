@@ -116,6 +116,11 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     if (!block)
         return;
 
+    if (self.concurrent) {
+        dispatch_async(m_dispatchQueue, block);
+        return;
+    }
+
     dispatch_block_t trampoline = ^{
         sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
 
@@ -135,6 +140,11 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 - (void)runSynchronously:(dispatch_block_t)block; {
     if (!block)
         return;
+
+    if (self.concurrent) {
+        dispatch_sync(m_dispatchQueue, block);
+        return;
+    }
 
     sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
 
