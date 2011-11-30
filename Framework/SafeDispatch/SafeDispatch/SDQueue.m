@@ -112,17 +112,41 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     if (!block)
         return;
 
-    dispatch_async(m_dispatchQueue, block);
+    dispatch_block_t trampoline = ^{
+        sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+
+        sd_dispatch_queue_stack head = {
+            .queue = m_dispatchQueue,
+            .next = tail
+        };
+
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+        block();
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
+    };
+
+    dispatch_async(m_dispatchQueue, trampoline);
 }
 
 - (void)runSynchronously:(dispatch_block_t)block; {
     if (!block)
         return;
 
+    sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+
+    sd_dispatch_queue_stack head = {
+        .queue = m_dispatchQueue,
+        .next = tail
+    };
+
+    dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+
     if (self.currentQueue)
         block();
     else
         dispatch_sync(m_dispatchQueue, block);
+
+    dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
 }
 
 @end
