@@ -107,8 +107,39 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
 #pragma mark Dispatch
 
-// TODO
 + (void)synchronizeQueues:(NSArray *)queues runAsynchronously:(dispatch_block_t)block; {
+    NSArray *sortedQueues = [queues sortedArrayUsingComparator:^ NSComparisonResult (SDQueue *queueA, SDQueue *queueB){
+        dispatch_queue_t dispatchA = queueA.dispatchQueue;
+        dispatch_queue_t dispatchB = queueB.dispatchQueue;
+
+        if (dispatchA < dispatchB)
+            return NSOrderedAscending;
+        else if (dispatchA > dispatchB)
+            return NSOrderedDescending;
+        else
+            return NSOrderedSame;
+    }];
+
+    NSUInteger count = [sortedQueues count];
+
+    __block dispatch_block_t recursiveJumpBlock = NULL;
+    __block NSUInteger currentIndex = 0;
+
+    dispatch_block_t jumpBlock = [^{
+        if (currentIndex >= count - 1) {
+            block();
+        } else {
+            ++currentIndex;
+
+            SDQueue *queue = [sortedQueues objectAtIndex:currentIndex];
+            [queue runBarrierSynchronously:recursiveJumpBlock];
+        }
+    } copy];
+
+    recursiveJumpBlock = jumpBlock;
+
+    SDQueue *firstQueue = [sortedQueues objectAtIndex:0];
+    [firstQueue runBarrierAsynchronously:jumpBlock];
 }
 
 + (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block; {
