@@ -126,21 +126,21 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
     NSUInteger count = [sortedQueues count];
 
-    __block __unsafe_unretained dispatch_block_t weakJumpBlock = NULL;
+    __block dispatch_block_t recursiveJumpBlock = NULL;
     __block NSUInteger nextIndex = 0;
 
-    dispatch_block_t jumpBlock = ^{
+    dispatch_block_t jumpBlock = [^{
         if (nextIndex >= count) {
             block();
         } else {
             SDQueue *queue = [sortedQueues objectAtIndex:nextIndex];
-            dispatch_barrier_sync(queue.dispatchQueue, weakJumpBlock);
+            [queue runBarrierSynchronously:recursiveJumpBlock];
 
             ++nextIndex;
         }
-    };
+    } copy];
 
-    weakJumpBlock = jumpBlock;
+    recursiveJumpBlock = jumpBlock;
     jumpBlock();
 }
 
