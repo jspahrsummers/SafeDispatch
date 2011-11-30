@@ -12,6 +12,11 @@
  * Represents a Grand Central Dispatch queue.
  */
 @interface SDQueue : NSObject
+
+/**
+ * @name Initialization
+ */
+
 /**
  * The queue upon which the current code is executing.
  *
@@ -37,29 +42,9 @@
  * Returns an `SDQueue` wrapping the given GCD queue.
  *
  * @param queue The dispatch queue to wrap.
+ * @param concurrent Whether this queue is concurrent.
  */
-+ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue;
-
-/**
- * Asynchronously installs a barrier on multiple queues, executing a block when
- * all the queues are synchronized.
- *
- * If this method is the only tool being used to synchronize the actions of
- * multiple queues, it will not deadlock.
- */
-+ (void)synchronizeQueues:(NSArray *)queues runAsynchronously:(dispatch_block_t)block;
-
-/**
- * Installs a barrier on multiple queues, waits for all the queues to
- * synchronize, then executes the given block.
- *
- * If any of the given queues are (directly or indirectly) already running the
- * calling code, `block` will execute without being queued at the end.
- *
- * If this method is the only tool being used to synchronize the actions of
- * multiple queues, it will not deadlock.
- */
-+ (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block;
++ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent;
 
 /**
  * Initializes a serial GCD queue of default priority.
@@ -72,8 +57,9 @@
  * This is the designated initializer for this class.
  *
  * @param queue The dispatch queue to wrap.
+ * @param concurrent Whether this queue is concurrent.
  */
-- (id)initWithGCDQueue:(dispatch_queue_t)queue;
+- (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent;
 
 /**
  * Initializes a serial GCD queue of the given priority.
@@ -97,6 +83,21 @@
 - (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent;
 
 /**
+ * @name Queue Attributes
+ */
+
+/**
+ * Whether this queue is a concurrent queue (`YES`) or a serial queue (`NO`).
+ *
+ * This will always be `NO` on the queue object retrieved with <currentQueue>.
+ */
+@property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
+
+/**
+ * @name Dispatch
+ */
+
+/**
  * Adds the given block to the end of the queue and returns immediately.
  *
  * @param block The block to execute when the queue is available.
@@ -106,10 +107,36 @@
 /**
  * Adds the given block to the end of the queue and waits for it to execute.
  *
- * If the receiver is (directly or indirectly) already running the calling code,
- * `block` executes immediately without being queued.
+ * If the receiver is a serial queue and (directly or indirectly) already
+ * running the calling code, `block` executes immediately without being queued.
  *
  * @param block The block to execute when the queue is available.
  */
 - (void)runSynchronously:(dispatch_block_t)block;
+
+/**
+ * @name Synchronization
+ */
+
+/**
+ * Asynchronously installs a barrier on multiple queues, executing a block when
+ * all the queues are synchronized.
+ *
+ * If this method is the only tool being used to synchronize the actions of
+ * multiple queues, it will not deadlock.
+ */
++ (void)synchronizeQueues:(NSArray *)queues runAsynchronously:(dispatch_block_t)block;
+
+/**
+ * Installs a barrier on multiple queues, waits for all the queues to
+ * synchronize, then executes the given block.
+ *
+ * If any of the given serial queues are (directly or indirectly) already
+ * running the calling code, `block` will execute on those queues without being
+ * queued at the end.
+ *
+ * If this method is the only tool being used to synchronize the actions of
+ * multiple queues, it will not deadlock.
+ */
++ (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block;
 @end

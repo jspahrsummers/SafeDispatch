@@ -29,6 +29,8 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
 #pragma mark Properties
 
+@synthesize concurrent = m_concurrent;
+
 - (BOOL)isCurrentQueue {
     sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
     while (stack) {
@@ -44,33 +46,35 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 #pragma mark Lifecycle
 
 + (SDQueue *)currentQueue; {
-    return [self queueWithGCDQueue:dispatch_get_current_queue()];
+    return [self queueWithGCDQueue:dispatch_get_current_queue() concurrent:NO];
 }
 
 + (SDQueue *)concurrentGlobalQueueWithPriority:(dispatch_queue_priority_t)priority; {
     dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
-    return [self queueWithGCDQueue:queue];
+    return [self queueWithGCDQueue:queue concurrent:YES];
 }
 
 + (SDQueue *)mainQueue; {
-    return [self queueWithGCDQueue:dispatch_get_main_queue()];
+    return [self queueWithGCDQueue:dispatch_get_main_queue() concurrent:NO];
 }
 
-+ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue; {
-    return [[self alloc] initWithGCDQueue:queue];
++ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent; {
+    return [[self alloc] initWithGCDQueue:queue concurrent:concurrent];
 }
 
 - (id)init; {
     return [self initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
 
-- (id)initWithGCDQueue:(dispatch_queue_t)queue; {
+- (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent; {
     self = [super init];
     if (!self || !queue)
         return nil;
 
     dispatch_retain(queue);
+
     m_dispatchQueue = queue;
+    m_concurrent = concurrent;
 
     return self;
 }
@@ -84,7 +88,7 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
     // TODO: add label support
     dispatch_queue_t queue = dispatch_queue_create(NULL, attribute);
-    self = [self initWithGCDQueue:queue];
+    self = [self initWithGCDQueue:queue concurrent:concurrent];
     dispatch_release(queue);
 
     return self;
