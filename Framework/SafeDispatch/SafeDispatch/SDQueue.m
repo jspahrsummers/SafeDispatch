@@ -96,6 +96,7 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     dispatch_barrier_sync(m_dispatchQueue, ^{});
 
     dispatch_release(m_dispatchQueue);
+    m_dispatchQueue = NULL;
 }
 
 @end
