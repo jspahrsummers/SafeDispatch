@@ -105,6 +105,20 @@
 - (void)runAsynchronously:(dispatch_block_t)block;
 
 /**
+ * Adds the given block to the end of the queue and waits for it to execute.
+ *
+ * If the receiver is a serial queue and (directly or indirectly) already
+ * running the calling code, `block` executes immediately without being queued.
+ *
+ * @param block The block to execute when the queue is available.
+ */
+- (void)runSynchronously:(dispatch_block_t)block;
+
+/**
+ * @name Synchronization
+ */
+
+/**
  * Adds a barrier block to the end of the queue and returns immediately.
  *
  * When the block reaches the front of the queue, if the receiver is a serial
@@ -128,20 +142,6 @@
  * @param block The block to execute when the queue is available.
  */
 - (void)runBarrierSynchronously:(dispatch_block_t)block;
-
-/**
- * Adds the given block to the end of the queue and waits for it to execute.
- *
- * If the receiver is a serial queue and (directly or indirectly) already
- * running the calling code, `block` executes immediately without being queued.
- *
- * @param block The block to execute when the queue is available.
- */
-- (void)runSynchronously:(dispatch_block_t)block;
-
-/**
- * @name Synchronization
- */
 
 /**
  * Asynchronously installs a barrier on multiple queues, executing a block when
