@@ -165,9 +165,9 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
             block();
         } else {
             SDQueue *queue = [sortedQueues objectAtIndex:nextIndex];
-            [queue runBarrierSynchronously:recursiveJumpBlock];
-
             ++nextIndex;
+
+            [queue runBarrierSynchronously:recursiveJumpBlock];
         }
     } copy];
 
