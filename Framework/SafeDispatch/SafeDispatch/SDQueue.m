@@ -16,6 +16,8 @@ typedef struct sd_dispatch_queue_stack {
 // used with dispatch_set_queue_specific()
 static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
+static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAssociatedQueue";
+
 @interface SDQueue () {
     dispatch_queue_t m_dispatchQueue;
 }
@@ -40,6 +42,23 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 }
 
 #pragma mark Lifecycle
+
++ (SDQueue *)currentQueue; {
+    return [self queueWithGCDQueue:dispatch_get_current_queue()];
+}
+
++ (SDQueue *)concurrentGlobalQueueWithPriority:(dispatch_queue_priority_t)priority; {
+    dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
+    return [self queueWithGCDQueue:queue];
+}
+
++ (SDQueue *)mainQueue; {
+    return [self queueWithGCDQueue:dispatch_get_main_queue()];
+}
+
++ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue; {
+    return [[self alloc] initWithGCDQueue:queue];
+}
 
 - (id)init; {
     return [self initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];

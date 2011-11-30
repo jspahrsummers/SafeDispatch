@@ -36,9 +36,6 @@
 /**
  * Returns an `SDQueue` wrapping the given GCD queue.
  *
- * If an `SDQueue` is already associated with the given GCD queue, the existing
- * one is returned.
- *
  * @param queue The dispatch queue to wrap.
  */
 + (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue;
@@ -71,9 +68,6 @@
 
 /**
  * Initializes the receiver to wrap around the given GCD queue.
- *
- * If an `SDQueue` is already associated with the given GCD queue, the receiver
- * is released and the existing queue object is returned.
  *
  * This is the designated initializer for this class.
  *
