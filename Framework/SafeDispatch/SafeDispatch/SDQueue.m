@@ -1,5 +1,5 @@
 //
-//  SafeDispatch.h
+//  SDQueue.m
 //  SafeDispatch
 //
 //  Created by Justin Spahr-Summers on 29.11.11.
@@ -7,3 +7,7 @@
 //
 
 #import <SafeDispatch/SDQueue.h>
+
+@implementation SDQueue
+
+@end

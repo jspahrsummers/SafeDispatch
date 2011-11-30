@@ -9,12 +9,13 @@
 /* Begin PBXBuildFile section */
 		D01FEA971485EBC200A37CA6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA961485EBC200A37CA6 /* Cocoa.framework */; };
 		D01FEAA11485EBC200A37CA6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D01FEA9F1485EBC200A37CA6 /* InfoPlist.strings */; };
-		D01FEAA51485EBC200A37CA6 /* SafeDispatch.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEAA41485EBC200A37CA6 /* SafeDispatch.m */; };
 		D01FEAAD1485EBC200A37CA6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEAAC1485EBC200A37CA6 /* SenTestingKit.framework */; };
 		D01FEAAE1485EBC200A37CA6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA961485EBC200A37CA6 /* Cocoa.framework */; };
 		D01FEAB11485EBC200A37CA6 /* SafeDispatch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA931485EBC200A37CA6 /* SafeDispatch.framework */; };
 		D01FEAB71485EBC200A37CA6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D01FEAB51485EBC200A37CA6 /* InfoPlist.strings */; };
 		D01FEABA1485EBC200A37CA6 /* SafeDispatchTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEAB91485EBC200A37CA6 /* SafeDispatchTests.m */; };
+		D01FEADD1485ECE800A37CA6 /* SDQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEADB1485ECE700A37CA6 /* SDQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D01FEADE1485ECE800A37CA6 /* SDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEADC1485ECE700A37CA6 /* SDQueue.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,7 +38,6 @@
 		D01FEAA01485EBC200A37CA6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D01FEAA21485EBC200A37CA6 /* SafeDispatch-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SafeDispatch-Prefix.pch"; sourceTree = "<group>"; };
 		D01FEAA31485EBC200A37CA6 /* SafeDispatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SafeDispatch.h; sourceTree = "<group>"; };
-		D01FEAA41485EBC200A37CA6 /* SafeDispatch.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SafeDispatch.m; sourceTree = "<group>"; };
 		D01FEAAB1485EBC200A37CA6 /* SafeDispatchTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeDispatchTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D01FEAAC1485EBC200A37CA6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		D01FEAB41485EBC200A37CA6 /* SafeDispatchTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SafeDispatchTests-Info.plist"; sourceTree = "<group>"; };
@@ -59,6 +59,8 @@
 		D01FEAD51485EBDA00A37CA6 /* Mac-Framework.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-Framework.xcconfig"; sourceTree = "<group>"; };
 		D01FEAD61485EBDA00A37CA6 /* Mac-StaticLibrary.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Mac-StaticLibrary.xcconfig"; sourceTree = "<group>"; };
 		D01FEAD71485EBDA00A37CA6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		D01FEADB1485ECE700A37CA6 /* SDQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDQueue.h; sourceTree = "<group>"; };
+		D01FEADC1485ECE700A37CA6 /* SDQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDQueue.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,7 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				D01FEAA31485EBC200A37CA6 /* SafeDispatch.h */,
-				D01FEAA41485EBC200A37CA6 /* SafeDispatch.m */,
+				D01FEAE01485ECEC00A37CA6 /* Classes */,
 				D01FEA9D1485EBC200A37CA6 /* Supporting Files */,
 			);
 			path = SafeDispatch;
@@ -225,6 +227,15 @@
 			path = "Mac OS X";
 			sourceTree = "<group>";
 		};
+		D01FEAE01485ECEC00A37CA6 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				D01FEADB1485ECE700A37CA6 /* SDQueue.h */,
+				D01FEADC1485ECE700A37CA6 /* SDQueue.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -232,6 +243,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D01FEADD1485ECE800A37CA6 /* SDQueue.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -341,7 +353,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D01FEAA51485EBC200A37CA6 /* SafeDispatch.m in Sources */,
+				D01FEADE1485ECE800A37CA6 /* SDQueue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,6 +496,7 @@
 				D01FEABF1485EBC200A37CA6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D01FEAC01485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "SafeDispatchTests" */ = {
 			isa = XCConfigurationList;
@@ -492,6 +505,7 @@
 				D01FEAC21485EBC200A37CA6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
