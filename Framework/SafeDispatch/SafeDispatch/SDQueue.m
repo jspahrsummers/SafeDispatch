@@ -101,6 +101,13 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
 #pragma mark Dispatch
 
+// TODO
++ (void)synchronizeQueues:(NSArray *)queues runAsynchronously:(dispatch_block_t)block; {
+}
+
++ (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block; {
+}
+
 - (void)runAsynchronously:(dispatch_block_t)block; {
     if (!block)
         return;
