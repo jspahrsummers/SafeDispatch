@@ -99,4 +99,23 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     m_dispatchQueue = NULL;
 }
 
+#pragma mark Dispatch
+
+- (void)runAsynchronously:(dispatch_block_t)block; {
+    if (!block)
+        return;
+
+    dispatch_async(m_dispatchQueue, block);
+}
+
+- (void)runSynchronously:(dispatch_block_t)block; {
+    if (!block)
+        return;
+
+    if (self.currentQueue)
+        block();
+    else
+        dispatch_sync(m_dispatchQueue, block);
+}
+
 @end
