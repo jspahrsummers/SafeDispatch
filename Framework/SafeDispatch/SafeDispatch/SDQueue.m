@@ -39,4 +39,44 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     return NO;
 }
 
+#pragma mark Lifecycle
+
+- (id)init; {
+    return [self initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+}
+
+- (id)initWithGCDQueue:(dispatch_queue_t)queue; {
+    self = [super init];
+    if (!self || !queue)
+        return nil;
+
+    dispatch_retain(queue);
+    m_dispatchQueue = queue;
+
+    return self;
+}
+
+- (id)initWithPriority:(dispatch_queue_priority_t)priority; {
+    return [self initWithPriority:priority concurrent:NO];
+}
+
+- (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent; {
+    dispatch_queue_attr_t attribute = (concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
+
+    // TODO: add label support
+    dispatch_queue_t queue = dispatch_queue_create(NULL, attribute);
+    self = [self initWithGCDQueue:queue];
+    dispatch_release(queue);
+
+    return self;
+}
+
+- (void)dealloc {
+    // attempt to flush the queue to avoid a crash from releasing it while it
+    // still has blocks
+    dispatch_barrier_sync(m_dispatchQueue, ^{});
+
+    dispatch_release(m_dispatchQueue);
+}
+
 @end

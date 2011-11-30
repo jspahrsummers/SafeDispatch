@@ -65,7 +65,7 @@
 + (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block;
 
 /**
- * Initializes a custom GCD queue of default priority.
+ * Initializes a serial GCD queue of default priority.
  */
 - (id)init;
 
