@@ -22,6 +22,7 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     dispatch_queue_t m_dispatchQueue;
 }
 
+@property (nonatomic, readonly) dispatch_queue_t dispatchQueue;
 @property (readonly, getter = isCurrentQueue) BOOL currentQueue;
 @end
 
@@ -29,6 +30,7 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
 #pragma mark Properties
 
+@synthesize dispatchQueue = m_dispatchQueue;
 @synthesize concurrent = m_concurrent;
 
 - (BOOL)isCurrentQueue {
@@ -110,6 +112,36 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 }
 
 + (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block; {
+    NSArray *sortedQueues = [queues sortedArrayUsingComparator:^ NSComparisonResult (SDQueue *queueA, SDQueue *queueB){
+        dispatch_queue_t dispatchA = queueA.dispatchQueue;
+        dispatch_queue_t dispatchB = queueB.dispatchQueue;
+
+        if (dispatchA < dispatchB)
+            return NSOrderedAscending;
+        else if (dispatchA > dispatchB)
+            return NSOrderedDescending;
+        else
+            return NSOrderedSame;
+    }];
+
+    NSUInteger count = [sortedQueues count];
+
+    __block __unsafe_unretained dispatch_block_t weakJumpBlock = NULL;
+    __block NSUInteger nextIndex = 0;
+
+    dispatch_block_t jumpBlock = ^{
+        if (nextIndex >= count) {
+            block();
+        } else {
+            SDQueue *queue = [sortedQueues objectAtIndex:nextIndex];
+            dispatch_barrier_sync(queue.dispatchQueue, weakJumpBlock);
+
+            ++nextIndex;
+        }
+    };
+
+    weakJumpBlock = jumpBlock;
+    jumpBlock();
 }
 
 - (void)runAsynchronously:(dispatch_block_t)block; {
@@ -135,6 +167,47 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     };
 
     dispatch_async(m_dispatchQueue, trampoline);
+}
+
+- (void)runBarrierAsynchronously:(dispatch_block_t)block; {
+    if (!block)
+        return;
+
+    dispatch_block_t trampoline = ^{
+        sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+
+        sd_dispatch_queue_stack head = {
+            .queue = m_dispatchQueue,
+            .next = tail
+        };
+
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+        block();
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
+    };
+
+    dispatch_barrier_async(m_dispatchQueue, trampoline);
+}
+
+- (void)runBarrierSynchronously:(dispatch_block_t)block; {
+    if (!block)
+        return;
+
+    sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+
+    sd_dispatch_queue_stack head = {
+        .queue = m_dispatchQueue,
+        .next = tail
+    };
+
+    dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+
+    if (self.currentQueue)
+        block();
+    else
+        dispatch_barrier_sync(m_dispatchQueue, block);
+
+    dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
 }
 
 - (void)runSynchronously:(dispatch_block_t)block; {
