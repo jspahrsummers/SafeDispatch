@@ -49,6 +49,29 @@
     STAssertTrue(finished, @"");
 }
 
+- (void)testAsynchronousRecursion {
+    __block BOOL finished = NO;
+
+    SDQueue *firstQueue = [[SDQueue alloc] init];
+    SDQueue *secondQueue = [[SDQueue alloc] init];
+
+    [firstQueue runAsynchronously:^{
+        [secondQueue runSynchronously:^{
+            [firstQueue runSynchronously:^{
+                [secondQueue runSynchronously:^{
+                    finished = YES;
+                }];
+            }];
+        }];
+    }];
+
+    [firstQueue runBarrierSynchronously:^{
+    }];
+
+    OSMemoryBarrier();
+    STAssertTrue(finished, @"");
+}
+
 - (void)testMultipleRecursion {
     __block BOOL finished = NO;
 
