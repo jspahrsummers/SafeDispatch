@@ -43,8 +43,9 @@
  *
  * @param queue The dispatch queue to wrap.
  * @param concurrent Whether this queue is concurrent.
+ * @param private Whether this queue is private (custom).
  */
-+ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent;
++ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private;
 
 /**
  * Initializes a serial GCD queue of default priority.
@@ -58,8 +59,9 @@
  *
  * @param queue The dispatch queue to wrap.
  * @param concurrent Whether this queue is concurrent.
+ * @param private Whether this queue is private (custom).
  */
-- (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent;
+- (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private;
 
 /**
  * Initializes a serial GCD queue of the given priority.
@@ -89,9 +91,17 @@
 /**
  * Whether this queue is a concurrent queue (`YES`) or a serial queue (`NO`).
  *
- * This will always be `NO` on the queue object retrieved with <currentQueue>.
+ * This will always be `NO` on a queue object retrieved with <currentQueue>.
  */
 @property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
+
+/**
+ * Whether this queue is a private queue (`YES`) or one created by the system
+ * (`NO`).
+ *
+ * This will always be `NO` on a queue object retrieved with <currentQueue>.
+ */
+@property (nonatomic, readonly, getter = isPrivate) BOOL private;
 
 /**
  * @name Dispatch

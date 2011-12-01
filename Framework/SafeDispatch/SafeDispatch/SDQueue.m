@@ -32,6 +32,7 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
 @synthesize dispatchQueue = m_dispatchQueue;
 @synthesize concurrent = m_concurrent;
+@synthesize private = m_private;
 
 - (BOOL)isCurrentQueue {
     sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
@@ -48,35 +49,36 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 #pragma mark Lifecycle
 
 + (SDQueue *)currentQueue; {
-    return [self queueWithGCDQueue:dispatch_get_current_queue() concurrent:NO];
+    return [self queueWithGCDQueue:dispatch_get_current_queue() concurrent:NO private:NO];
 }
 
 + (SDQueue *)concurrentGlobalQueueWithPriority:(dispatch_queue_priority_t)priority; {
     dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
-    return [self queueWithGCDQueue:queue concurrent:YES];
+    return [self queueWithGCDQueue:queue concurrent:YES private:NO];
 }
 
 + (SDQueue *)mainQueue; {
-    return [self queueWithGCDQueue:dispatch_get_main_queue() concurrent:NO];
+    return [self queueWithGCDQueue:dispatch_get_main_queue() concurrent:NO private:NO];
 }
 
-+ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent; {
-    return [[self alloc] initWithGCDQueue:queue concurrent:concurrent];
++ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private; {
+    return [[self alloc] initWithGCDQueue:queue concurrent:concurrent private:private];
 }
 
 - (id)init; {
     return [self initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
 
-- (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent; {
+- (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private; {
     self = [super init];
     if (!self || !queue)
         return nil;
 
     dispatch_retain(queue);
-
     m_dispatchQueue = queue;
+
     m_concurrent = concurrent;
+    m_private = private;
 
     return self;
 }
@@ -90,16 +92,18 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
     // TODO: add label support
     dispatch_queue_t queue = dispatch_queue_create(NULL, attribute);
-    self = [self initWithGCDQueue:queue concurrent:concurrent];
+    self = [self initWithGCDQueue:queue concurrent:concurrent private:YES];
     dispatch_release(queue);
 
     return self;
 }
 
 - (void)dealloc {
-    // attempt to flush the queue to avoid a crash from releasing it while it
-    // still has blocks
-    dispatch_barrier_sync(m_dispatchQueue, ^{});
+    if (self.private) {
+        // attempt to flush the queue to avoid a crash from releasing it while it
+        // still has blocks
+        dispatch_barrier_sync(m_dispatchQueue, ^{});
+    }
 
     dispatch_release(m_dispatchQueue);
     m_dispatchQueue = NULL;

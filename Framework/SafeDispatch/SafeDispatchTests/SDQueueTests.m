@@ -25,6 +25,7 @@
 
     for (size_t i = 0;i < sizeof(priorities) / sizeof(*priorities);++i) {
         dispatch_queue_priority_t priority = priorities[i];
+
         STAssertNotNil([SDQueue concurrentGlobalQueueWithPriority:priority], @"");
         STAssertNotNil([[SDQueue alloc] initWithPriority:priority], @"");
         STAssertNotNil([[SDQueue alloc] initWithPriority:priority concurrent:YES], @"");
