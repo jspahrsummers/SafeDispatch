@@ -16,8 +16,6 @@ typedef struct sd_dispatch_queue_stack {
 // used with dispatch_set_queue_specific()
 static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
-static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAssociatedQueue";
-
 @interface SDQueue ()
 @property (nonatomic, readonly) dispatch_queue_t dispatchQueue;
 @property (readonly, getter = isCurrentQueue) BOOL currentQueue;
@@ -115,6 +113,19 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
     dispatch_release(m_dispatchQueue);
     m_dispatchQueue = NULL;
+}
+
+#pragma mark NSObject overrides
+
+- (NSUInteger)hash {
+    return (NSUInteger)m_dispatchQueue;
+}
+
+- (BOOL)isEqual:(SDQueue *)queue {
+    if (![queue isKindOfClass:[SDQueue class]])
+        return NO;
+
+    return self.dispatchQueue == queue.dispatchQueue;
 }
 
 #pragma mark Dispatch
