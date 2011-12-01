@@ -16,6 +16,11 @@
 		D01FEAB71485EBC200A37CA6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D01FEAB51485EBC200A37CA6 /* InfoPlist.strings */; };
 		D01FEADD1485ECE800A37CA6 /* SDQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEADB1485ECE700A37CA6 /* SDQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D01FEADE1485ECE800A37CA6 /* SDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEADC1485ECE700A37CA6 /* SDQueue.m */; };
+		D05AEF4E148725A100EBF398 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA961485EBC200A37CA6 /* Cocoa.framework */; };
+		D05AEF5C148725CA00EBF398 /* SDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEADC1485ECE700A37CA6 /* SDQueue.m */; };
+		D05AEF5D148725CD00EBF398 /* SDQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEADB1485ECE700A37CA6 /* SDQueue.h */; };
+		D05AEF5E148725D000EBF398 /* SafeDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEAA31485EBC200A37CA6 /* SafeDispatch.h */; };
+		D05AEF5F148725D500EBF398 /* SafeDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEAA31485EBC200A37CA6 /* SafeDispatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +66,7 @@
 		D01FEAD71485EBDA00A37CA6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		D01FEADB1485ECE700A37CA6 /* SDQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDQueue.h; sourceTree = "<group>"; };
 		D01FEADC1485ECE700A37CA6 /* SDQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDQueue.m; sourceTree = "<group>"; };
+		D05AEF4D148725A100EBF398 /* libsafedispatch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsafedispatch.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +85,14 @@
 				D01FEAAD1485EBC200A37CA6 /* SenTestingKit.framework in Frameworks */,
 				D01FEAAE1485EBC200A37CA6 /* Cocoa.framework in Frameworks */,
 				D01FEAB11485EBC200A37CA6 /* SafeDispatch.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D05AEF4A148725A100EBF398 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D05AEF4E148725A100EBF398 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,6 +115,7 @@
 			children = (
 				D01FEA931485EBC200A37CA6 /* SafeDispatch.framework */,
 				D01FEAAB1485EBC200A37CA6 /* SafeDispatchTests.octest */,
+				D05AEF4D148725A100EBF398 /* libsafedispatch.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -244,6 +259,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				D01FEADD1485ECE800A37CA6 /* SDQueue.h in Headers */,
+				D05AEF5F148725D500EBF398 /* SafeDispatch.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D05AEF4B148725A100EBF398 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D05AEF5D148725CD00EBF398 /* SDQueue.h in Headers */,
+				D05AEF5E148725D000EBF398 /* SafeDispatch.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,6 +312,23 @@
 			productReference = D01FEAAB1485EBC200A37CA6 /* SafeDispatchTests.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
+		D05AEF4C148725A100EBF398 /* libsafedispatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D05AEF55148725A100EBF398 /* Build configuration list for PBXNativeTarget "libsafedispatch" */;
+			buildPhases = (
+				D05AEF49148725A100EBF398 /* Sources */,
+				D05AEF4A148725A100EBF398 /* Frameworks */,
+				D05AEF4B148725A100EBF398 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libsafedispatch;
+			productName = libsafedispatch;
+			productReference = D05AEF4D148725A100EBF398 /* libsafedispatch.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -309,6 +351,7 @@
 			targets = (
 				D01FEA921485EBC200A37CA6 /* SafeDispatch */,
 				D01FEAAA1485EBC200A37CA6 /* SafeDispatchTests */,
+				D05AEF4C148725A100EBF398 /* libsafedispatch */,
 			);
 		};
 /* End PBXProject section */
@@ -365,6 +408,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D05AEF49148725A100EBF398 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D05AEF5C148725CA00EBF398 /* SDQueue.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -403,6 +454,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 				TEST_AFTER_BUILD = YES;
@@ -417,6 +469,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 				TEST_AFTER_BUILD = YES;
@@ -430,7 +483,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
-				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				INFOPLIST_FILE = "SafeDispatch/SafeDispatch-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
@@ -444,7 +496,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
-				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				INFOPLIST_FILE = "SafeDispatch/SafeDispatch-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
@@ -477,6 +528,22 @@
 			};
 			name = Release;
 		};
+		D05AEF56148725A100EBF398 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D01FEAD61485EBDA00A37CA6 /* Mac-StaticLibrary.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = safedispatch;
+			};
+			name = Debug;
+		};
+		D05AEF57148725A100EBF398 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D01FEAD61485EBDA00A37CA6 /* Mac-StaticLibrary.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = safedispatch;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -503,6 +570,15 @@
 			buildConfigurations = (
 				D01FEAC11485EBC200A37CA6 /* Debug */,
 				D01FEAC21485EBC200A37CA6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D05AEF55148725A100EBF398 /* Build configuration list for PBXNativeTarget "libsafedispatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D05AEF56148725A100EBF398 /* Debug */,
+				D05AEF57148725A100EBF398 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
