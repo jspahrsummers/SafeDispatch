@@ -25,6 +25,7 @@
 		D0EB8CA51487296000149538 /* SDGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EB8CA21487296000149538 /* SDGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D0EB8CA61487296000149538 /* SDGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EB8CA31487296000149538 /* SDGroup.m */; };
 		D0EB8CA71487296000149538 /* SDGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EB8CA31487296000149538 /* SDGroup.m */; };
+		D0EB8CB014872F3400149538 /* SDGroupTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EB8CAF14872F3400149538 /* SDGroupTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +74,8 @@
 		D05AEF4D148725A100EBF398 /* libsafedispatch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsafedispatch.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EB8CA21487296000149538 /* SDGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDGroup.h; sourceTree = "<group>"; };
 		D0EB8CA31487296000149538 /* SDGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDGroup.m; sourceTree = "<group>"; };
+		D0EB8CAE14872F3400149538 /* SDGroupTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDGroupTests.h; sourceTree = "<group>"; };
+		D0EB8CAF14872F3400149538 /* SDGroupTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDGroupTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,8 +172,7 @@
 		D01FEAB21485EBC200A37CA6 /* SafeDispatchTests */ = {
 			isa = PBXGroup;
 			children = (
-				D01C79631486CBD200289F7A /* SDQueueTests.h */,
-				D01C79641486CBD200289F7A /* SDQueueTests.m */,
+				D0EB8CAC14872F2300149538 /* Classes */,
 				D01FEAB31485EBC200A37CA6 /* Supporting Files */,
 			);
 			path = SafeDispatchTests;
@@ -255,6 +257,17 @@
 				D0EB8CA31487296000149538 /* SDGroup.m */,
 				D01FEADB1485ECE700A37CA6 /* SDQueue.h */,
 				D01FEADC1485ECE700A37CA6 /* SDQueue.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		D0EB8CAC14872F2300149538 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				D0EB8CAE14872F3400149538 /* SDGroupTests.h */,
+				D0EB8CAF14872F3400149538 /* SDGroupTests.m */,
+				D01C79631486CBD200289F7A /* SDQueueTests.h */,
+				D01C79641486CBD200289F7A /* SDQueueTests.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -416,6 +429,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D01C79651486CBD200289F7A /* SDQueueTests.m in Sources */,
+				D0EB8CB014872F3400149538 /* SDGroupTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
