@@ -30,6 +30,8 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 @synthesize dispatchQueue = m_dispatchQueue;
 @synthesize concurrent = m_concurrent;
 @synthesize private = m_private;
+@synthesize prologueBlock = m_prologueBlock;
+@synthesize epilogueBlock = m_epilogueBlock;
 
 - (BOOL)isCurrentQueue {
     sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
@@ -189,23 +191,43 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     if (!block)
         return;
 
+    dispatch_block_t prologue = self.prologueBlock;
+    dispatch_block_t epilogue = self.epilogueBlock;
+
+    dispatch_block_t trampoline;
+
     if (self.concurrent) {
-        dispatch_async(m_dispatchQueue, block);
-        return;
+        trampoline = [^{
+            if (prologue)
+                prologue();
+
+            block();
+
+            if (epilogue)
+                epilogue();
+        } copy];
+    } else {
+        trampoline = [^{
+            sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+
+            sd_dispatch_queue_stack head = {
+                .queue = m_dispatchQueue,
+                .next = tail
+            };
+
+            dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+
+            if (prologue)
+                prologue();
+
+            block();
+
+            if (epilogue)
+                epilogue();
+            
+            dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
+        } copy];
     }
-
-    dispatch_block_t trampoline = ^{
-        sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
-
-        sd_dispatch_queue_stack head = {
-            .queue = m_dispatchQueue,
-            .next = tail
-        };
-
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
-        block();
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
-    };
 
     dispatch_async(m_dispatchQueue, trampoline);
 }
@@ -214,6 +236,9 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     if (!block)
         return;
 
+    dispatch_block_t prologue = self.prologueBlock;
+    dispatch_block_t epilogue = self.epilogueBlock;
+
     dispatch_block_t trampoline = ^{
         sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
 
@@ -223,7 +248,15 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
         };
 
         dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+
+        if (prologue)
+            prologue();
+
         block();
+
+        if (epilogue)
+            epilogue();
+
         dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
     };
 
@@ -234,6 +267,9 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     if (!block)
         return;
 
+    dispatch_block_t prologue = self.prologueBlock;
+    dispatch_block_t epilogue = self.epilogueBlock;
+
     sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
 
     sd_dispatch_queue_stack head = {
@@ -243,10 +279,16 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
     dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
 
+    if (prologue)
+        prologue();
+
     if (self.currentQueue)
         block();
     else
         dispatch_barrier_sync(m_dispatchQueue, block);
+
+    if (epilogue)
+        epilogue();
 
     dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
 }
@@ -255,8 +297,18 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
     if (!block)
         return;
 
+    dispatch_block_t prologue = self.prologueBlock;
+    dispatch_block_t epilogue = self.epilogueBlock;
+
     if (self.concurrent) {
+        if (prologue)
+            prologue();
+
         dispatch_sync(m_dispatchQueue, block);
+
+        if (epilogue)
+            epilogue();
+
         return;
     }
 
@@ -269,10 +321,16 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
     dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
 
+    if (prologue)
+        prologue();
+
     if (self.currentQueue)
         block();
     else
         dispatch_sync(m_dispatchQueue, block);
+
+    if (epilogue)
+        epilogue();
 
     dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
 }

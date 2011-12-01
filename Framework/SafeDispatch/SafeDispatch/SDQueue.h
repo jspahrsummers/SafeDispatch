@@ -123,6 +123,32 @@
 @property (nonatomic, readonly, getter = isPrivate) BOOL private;
 
 /**
+ * @name Adding Behavior to Dispatched Blocks
+ */
+
+/**
+ * A block to automatically invoke after every block executed on the receiver.
+ *
+ * Changing this property will not affect the epilogue used for blocks that have
+ * already been queued.
+ *
+ * This block is run on the same thread as the queued block it is executing
+ * after.
+ */
+@property (copy) dispatch_block_t epilogueBlock;
+
+/**
+ * A block to automatically invoke before every block executed on the receiver.
+ *
+ * Changing this property will not affect the prologue used for blocks that have
+ * already been queued.
+ *
+ * This block is run on the same thread as the queued block that will execute
+ * after it.
+ */
+@property (copy) dispatch_block_t prologueBlock;
+
+/**
  * @name Dispatch
  */
 

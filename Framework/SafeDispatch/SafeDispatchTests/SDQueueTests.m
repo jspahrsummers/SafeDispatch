@@ -66,4 +66,40 @@
     STAssertTrue(finished, @"");
 }
 
+- (void)testPrologueEpilogue {
+    __block BOOL prologueDone = NO;
+    __block BOOL done = NO;
+    __block BOOL epilogueDone = NO;
+
+    SDQueue *queue = [[SDQueue alloc] init];
+
+    queue.prologueBlock = ^{
+        STAssertFalse(prologueDone, @"");
+        STAssertFalse(done, @"");
+        STAssertFalse(epilogueDone, @"");
+
+        prologueDone = YES;
+    };
+
+    queue.epilogueBlock = ^{
+        STAssertTrue(prologueDone, @"");
+        STAssertTrue(done, @"");
+        STAssertFalse(epilogueDone, @"");
+
+        epilogueDone = YES;
+    };
+
+    [queue runSynchronously:^{
+        STAssertTrue(prologueDone, @"");
+        STAssertFalse(done, @"");
+        STAssertFalse(epilogueDone, @"");
+
+        done = YES;
+    }];
+
+    STAssertTrue(prologueDone, @"");
+    STAssertTrue(done, @"");
+    STAssertTrue(epilogueDone, @"");
+}
+
 @end
