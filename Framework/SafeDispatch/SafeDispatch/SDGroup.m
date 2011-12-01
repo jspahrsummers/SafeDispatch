@@ -49,13 +49,14 @@
 #pragma mark Dispatch
 
 - (void)runAsynchronously:(dispatch_block_t)block; {
-    dispatch_group_enter(m_dispatchGroup);
+    dispatch_block_t copiedBlock = [block copy];
 
-    dispatch_block_t groupBlock = ^{
-        block();
+    dispatch_block_t groupBlock = [^{
+        copiedBlock();
         dispatch_group_leave(m_dispatchGroup);
-    };
+    } copy];
 
+    dispatch_group_enter(m_dispatchGroup);
     [self.destinationQueue runAsynchronously:groupBlock];
 }
 

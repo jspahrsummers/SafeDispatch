@@ -222,19 +222,21 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t prologue = self.prologueBlock;
     dispatch_block_t epilogue = self.epilogueBlock;
 
-    dispatch_block_t trampoline = ^{
+    dispatch_block_t copiedBlock = [block copy];
+
+    dispatch_block_t trampoline = [^{
         NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
 
         if (prologue)
             prologue();
 
-        block();
+        copiedBlock();
 
         if (epilogue)
             epilogue();
 
         NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
-    };
+    } copy];
 
     dispatch_async(m_dispatchQueue, trampoline);
 }
@@ -248,19 +250,21 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t prologue = self.prologueBlock;
     dispatch_block_t epilogue = self.epilogueBlock;
 
-    dispatch_block_t trampoline = ^{
+    dispatch_block_t copiedBlock = [block copy];
+
+    dispatch_block_t trampoline = [^{
         NSAssert1(!dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
 
         if (prologue)
             prologue();
 
-        block();
+        copiedBlock();
 
         if (epilogue)
             epilogue();
 
         NSAssert1(!dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
-    };
+    } copy];
 
     dispatch_barrier_async(m_dispatchQueue, trampoline);
 }
