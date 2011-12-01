@@ -301,25 +301,29 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
     sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
 
-    sd_dispatch_queue_stack head = {
-        .queue = m_dispatchQueue,
-        .next = tail
+    dispatch_block_t trampoline = ^{
+        sd_dispatch_queue_stack head = {
+            .queue = m_dispatchQueue,
+            .next = tail
+        };
+
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+
+        if (prologue)
+            prologue();
+
+        block();
+
+        if (epilogue)
+            epilogue();
+
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
     };
 
-    dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
-
-    if (prologue)
-        prologue();
-
     if (self.currentQueue)
-        block();
+        trampoline();
     else
-        dispatch_barrier_sync(m_dispatchQueue, block);
-
-    if (epilogue)
-        epilogue();
-
-    dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
+        dispatch_barrier_sync(m_dispatchQueue, trampoline);
 }
 
 - (void)runSynchronously:(dispatch_block_t)block; {
@@ -329,39 +333,31 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t prologue = self.prologueBlock;
     dispatch_block_t epilogue = self.epilogueBlock;
 
-    if (self.concurrent) {
+    sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+
+    dispatch_block_t trampoline = ^{
+        sd_dispatch_queue_stack head = {
+            .queue = m_dispatchQueue,
+            .next = tail
+        };
+
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+
         if (prologue)
             prologue();
 
-        dispatch_sync(m_dispatchQueue, block);
+        block();
 
         if (epilogue)
             epilogue();
 
-        return;
-    }
-
-    sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
-
-    sd_dispatch_queue_stack head = {
-        .queue = m_dispatchQueue,
-        .next = tail
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
     };
 
-    dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
-
-    if (prologue)
-        prologue();
-
     if (self.currentQueue)
-        block();
+        trampoline();
     else
-        dispatch_sync(m_dispatchQueue, block);
-
-    if (epilogue)
-        epilogue();
-
-    dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
+        dispatch_sync(m_dispatchQueue, trampoline);
 }
 
 @end
