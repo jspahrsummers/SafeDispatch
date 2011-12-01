@@ -11,6 +11,26 @@
 
 @implementation SDQueueTests
 
+- (void)testInitialization {
+    dispatch_queue_priority_t priorities[] = {
+        DISPATCH_QUEUE_PRIORITY_HIGH,
+        DISPATCH_QUEUE_PRIORITY_DEFAULT,
+        DISPATCH_QUEUE_PRIORITY_LOW,
+        DISPATCH_QUEUE_PRIORITY_BACKGROUND
+    };
+
+    STAssertNotNil([SDQueue currentQueue], @"");
+    STAssertNotNil([SDQueue mainQueue], @"");
+    STAssertNotNil([[SDQueue alloc] init], @"");
+
+    for (size_t i = 0;i < sizeof(priorities) / sizeof(*priorities);++i) {
+        dispatch_queue_priority_t priority = priorities[i];
+        STAssertNotNil([SDQueue concurrentGlobalQueueWithPriority:priority], @"");
+        STAssertNotNil([[SDQueue alloc] initWithPriority:priority], @"");
+        STAssertNotNil([[SDQueue alloc] initWithPriority:priority concurrent:YES], @"");
+    }
+}
+
 - (void)testSingleRecursion {
     __block BOOL finished = NO;
 
