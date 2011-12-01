@@ -129,7 +129,8 @@
 /**
  * Adds the given block to the end of the queue and returns immediately.
  *
- * @param block The block to execute when the queue is available.
+ * @param block The block to execute when the queue is available. If `NULL`,
+ * nothing happens.
  */
 - (void)runAsynchronously:(dispatch_block_t)block;
 
@@ -139,7 +140,8 @@
  * If the receiver is a serial queue and (directly or indirectly) already
  * running the calling code, `block` executes immediately without being queued.
  *
- * @param block The block to execute when the queue is available.
+ * @param block The block to execute when the queue is available. If `NULL`,
+ * nothing happens.
  */
 - (void)runSynchronously:(dispatch_block_t)block;
 
@@ -154,7 +156,8 @@
  * queue or a private concurrent queue, everything else on the queue waits for
  * the given block to finish executing.
  *
- * @param block The block to execute when the queue is available.
+ * @param block The block to execute when the queue is available. If `NULL`,
+ * nothing happens.
  */
 - (void)runBarrierAsynchronously:(dispatch_block_t)block;
 
@@ -168,7 +171,8 @@
  * If the receiver is a serial queue and (directly or indirectly) already
  * running the calling code, `block` executes immediately without being queued.
  *
- * @param block The block to execute when the queue is available.
+ * @param block The block to execute when the queue is available. If `NULL`,
+ * nothing happens.
  */
 - (void)runBarrierSynchronously:(dispatch_block_t)block;
 
