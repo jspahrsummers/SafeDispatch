@@ -274,15 +274,15 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t prologue = self.prologueBlock;
     dispatch_block_t epilogue = self.epilogueBlock;
 
-    sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
     dispatch_queue_t currentQueue = dispatch_get_current_queue();
 
     dispatch_block_t trampoline = ^{
         sd_dispatch_queue_stack head = {
             .queue = currentQueue,
-            .next = tail
+            .next = dispatch_queue_get_specific(currentQueue, SDDispatchQueueStackKey)
         };
 
+        sd_dispatch_queue_stack *oldStack = dispatch_queue_get_specific(m_dispatchQueue, SDDispatchQueueStackKey);
         dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
 
         if (prologue)
@@ -293,7 +293,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         if (epilogue)
             epilogue();
 
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
     };
 
     if (self.currentQueue)
@@ -309,15 +309,15 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t prologue = self.prologueBlock;
     dispatch_block_t epilogue = self.epilogueBlock;
 
-    sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
     dispatch_queue_t currentQueue = dispatch_get_current_queue();
 
     dispatch_block_t trampoline = ^{
         sd_dispatch_queue_stack head = {
             .queue = currentQueue,
-            .next = tail
+            .next = dispatch_queue_get_specific(currentQueue, SDDispatchQueueStackKey)
         };
 
+        sd_dispatch_queue_stack *oldStack = dispatch_queue_get_specific(m_dispatchQueue, SDDispatchQueueStackKey);
         dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
 
         if (prologue)
@@ -328,7 +328,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         if (epilogue)
             epilogue();
 
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
     };
 
     if (self.currentQueue)
