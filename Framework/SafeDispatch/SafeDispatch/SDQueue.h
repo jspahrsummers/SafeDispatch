@@ -184,6 +184,10 @@
  *
  * @param block The block to execute when the queue is available. If `NULL`,
  * nothing happens.
+ *
+ * @warning *Important:* This should not be used with a global concurrent queue.
+ * You can check the type of queue you have with the <concurrent> and <private>
+ * properties.
  */
 - (void)runBarrierAsynchronously:(dispatch_block_t)block;
 
@@ -199,6 +203,10 @@
  *
  * @param block The block to execute when the queue is available. If `NULL`,
  * nothing happens.
+ *
+ * @warning *Important:* This should not be used with a global concurrent queue.
+ * You can check the type of queue you have with the <concurrent> and <private>
+ * properties.
  */
 - (void)runBarrierSynchronously:(dispatch_block_t)block;
 

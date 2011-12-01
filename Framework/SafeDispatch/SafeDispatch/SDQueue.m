@@ -258,6 +258,8 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 }
 
 - (void)runBarrierAsynchronously:(dispatch_block_t)block; {
+    NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
+
     if (!block)
         return;
 
@@ -289,6 +291,8 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 }
 
 - (void)runBarrierSynchronously:(dispatch_block_t)block; {
+    NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
+
     if (!block)
         return;
 
