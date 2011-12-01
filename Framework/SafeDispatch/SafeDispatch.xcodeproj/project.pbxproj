@@ -18,9 +18,13 @@
 		D01FEADE1485ECE800A37CA6 /* SDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEADC1485ECE700A37CA6 /* SDQueue.m */; };
 		D05AEF4E148725A100EBF398 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA961485EBC200A37CA6 /* Cocoa.framework */; };
 		D05AEF5C148725CA00EBF398 /* SDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEADC1485ECE700A37CA6 /* SDQueue.m */; };
-		D05AEF5D148725CD00EBF398 /* SDQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEADB1485ECE700A37CA6 /* SDQueue.h */; };
+		D05AEF5D148725CD00EBF398 /* SDQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEADB1485ECE700A37CA6 /* SDQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D05AEF5E148725D000EBF398 /* SafeDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEAA31485EBC200A37CA6 /* SafeDispatch.h */; };
 		D05AEF5F148725D500EBF398 /* SafeDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = D01FEAA31485EBC200A37CA6 /* SafeDispatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0EB8CA41487296000149538 /* SDGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EB8CA21487296000149538 /* SDGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0EB8CA51487296000149538 /* SDGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EB8CA21487296000149538 /* SDGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D0EB8CA61487296000149538 /* SDGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EB8CA31487296000149538 /* SDGroup.m */; };
+		D0EB8CA71487296000149538 /* SDGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EB8CA31487296000149538 /* SDGroup.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +71,8 @@
 		D01FEADB1485ECE700A37CA6 /* SDQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDQueue.h; sourceTree = "<group>"; };
 		D01FEADC1485ECE700A37CA6 /* SDQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDQueue.m; sourceTree = "<group>"; };
 		D05AEF4D148725A100EBF398 /* libsafedispatch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsafedispatch.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0EB8CA21487296000149538 /* SDGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDGroup.h; sourceTree = "<group>"; };
+		D0EB8CA31487296000149538 /* SDGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDGroup.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -245,6 +251,8 @@
 		D01FEAE01485ECEC00A37CA6 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				D0EB8CA21487296000149538 /* SDGroup.h */,
+				D0EB8CA31487296000149538 /* SDGroup.m */,
 				D01FEADB1485ECE700A37CA6 /* SDQueue.h */,
 				D01FEADC1485ECE700A37CA6 /* SDQueue.m */,
 			);
@@ -260,6 +268,7 @@
 			files = (
 				D01FEADD1485ECE800A37CA6 /* SDQueue.h in Headers */,
 				D05AEF5F148725D500EBF398 /* SafeDispatch.h in Headers */,
+				D0EB8CA41487296000149538 /* SDGroup.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +278,7 @@
 			files = (
 				D05AEF5D148725CD00EBF398 /* SDQueue.h in Headers */,
 				D05AEF5E148725D000EBF398 /* SafeDispatch.h in Headers */,
+				D0EB8CA51487296000149538 /* SDGroup.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,6 +407,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D01FEADE1485ECE800A37CA6 /* SDQueue.m in Sources */,
+				D0EB8CA61487296000149538 /* SDGroup.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,6 +424,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D05AEF5C148725CA00EBF398 /* SDQueue.m in Sources */,
+				D0EB8CA71487296000149538 /* SDGroup.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
