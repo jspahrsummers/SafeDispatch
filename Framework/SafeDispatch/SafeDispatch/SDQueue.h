@@ -90,6 +90,20 @@
 - (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent;
 
 /**
+ * Initializes a serial or concurrent GCD queue of the given priority.
+ *
+ * @param priority A priority level for the custom queue. Blocks dispatched to
+ * a queue with higher priority will be executed before those with a lower
+ * priority.
+ * @param concurrent If `YES`, the returned queue is capable of executing
+ * multiple blocks simultaneously. If `NO`, the returned queue executes its
+ * blocks in FIFO order.
+ * @param label A reverse-DNS string to uniquely identify this queue in
+ * debugging tools. This may be `nil` to not use a label.
+ */
+- (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent label:(NSString *)label;
+
+/**
  * @name Queue Attributes
  */
 

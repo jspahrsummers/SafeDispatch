@@ -89,10 +89,13 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 }
 
 - (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent; {
+    return [self initWithPriority:priority concurrent:concurrent label:@"org.jspahrsummers.SafeDispatch.customQueue"];
+}
+
+- (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent label:(NSString *)label; {
     dispatch_queue_attr_t attribute = (concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
 
-    // TODO: add label support
-    dispatch_queue_t queue = dispatch_queue_create(NULL, attribute);
+    dispatch_queue_t queue = dispatch_queue_create([label UTF8String], attribute);
     dispatch_set_target_queue(queue, dispatch_get_global_queue(priority, 0));
 
     self = [self initWithGCDQueue:queue concurrent:concurrent private:YES];
