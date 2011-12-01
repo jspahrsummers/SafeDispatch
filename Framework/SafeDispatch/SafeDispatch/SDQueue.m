@@ -46,7 +46,14 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 #pragma mark Lifecycle
 
 + (SDQueue *)concurrentGlobalQueue; {
-    return [self concurrentGlobalQueueWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+    static SDQueue *queue = nil;
+    static dispatch_once_t pred;
+
+    dispatch_once(&pred, ^{
+        queue = [self concurrentGlobalQueueWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+    });
+
+    return queue;
 }
 
 + (SDQueue *)currentQueue; {
@@ -59,7 +66,14 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 }
 
 + (SDQueue *)mainQueue; {
-    return [self queueWithGCDQueue:dispatch_get_main_queue() concurrent:NO private:NO];
+    static SDQueue *queue = nil;
+    static dispatch_once_t pred;
+
+    dispatch_once(&pred, ^{
+        queue = [self queueWithGCDQueue:dispatch_get_main_queue() concurrent:NO private:NO];
+    });
+
+    return queue;
 }
 
 + (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private; {
