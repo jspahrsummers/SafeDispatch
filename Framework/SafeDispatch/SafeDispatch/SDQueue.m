@@ -32,6 +32,9 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 @synthesize epilogueBlock = m_epilogueBlock;
 
 - (BOOL)isCurrentQueue {
+    if (dispatch_get_current_queue() == m_dispatchQueue)
+        return YES;
+
     sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
     while (stack) {
         if (stack->queue == m_dispatchQueue)
@@ -219,40 +222,19 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t prologue = self.prologueBlock;
     dispatch_block_t epilogue = self.epilogueBlock;
 
-    dispatch_block_t trampoline;
+    dispatch_block_t trampoline = ^{
+        NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
 
-    if (self.concurrent) {
-        trampoline = [^{
-            if (prologue)
-                prologue();
+        if (prologue)
+            prologue();
 
-            block();
+        block();
 
-            if (epilogue)
-                epilogue();
-        } copy];
-    } else {
-        trampoline = [^{
-            sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+        if (epilogue)
+            epilogue();
 
-            sd_dispatch_queue_stack head = {
-                .queue = m_dispatchQueue,
-                .next = tail
-            };
-
-            dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
-
-            if (prologue)
-                prologue();
-
-            block();
-
-            if (epilogue)
-                epilogue();
-            
-            dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
-        } copy];
-    }
+        NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
+    };
 
     dispatch_async(m_dispatchQueue, trampoline);
 }
@@ -267,14 +249,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t epilogue = self.epilogueBlock;
 
     dispatch_block_t trampoline = ^{
-        sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
-
-        sd_dispatch_queue_stack head = {
-            .queue = m_dispatchQueue,
-            .next = tail
-        };
-
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+        NSAssert1(!dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
 
         if (prologue)
             prologue();
@@ -284,7 +259,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         if (epilogue)
             epilogue();
 
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, tail, NULL);
+        NSAssert1(!dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
     };
 
     dispatch_barrier_async(m_dispatchQueue, trampoline);
@@ -300,10 +275,11 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t epilogue = self.epilogueBlock;
 
     sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+    dispatch_queue_t currentQueue = dispatch_get_current_queue();
 
     dispatch_block_t trampoline = ^{
         sd_dispatch_queue_stack head = {
-            .queue = m_dispatchQueue,
+            .queue = currentQueue,
             .next = tail
         };
 
@@ -334,10 +310,11 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t epilogue = self.epilogueBlock;
 
     sd_dispatch_queue_stack *tail = dispatch_get_specific(SDDispatchQueueStackKey);
+    dispatch_queue_t currentQueue = dispatch_get_current_queue();
 
     dispatch_block_t trampoline = ^{
         sd_dispatch_queue_stack head = {
-            .queue = m_dispatchQueue,
+            .queue = currentQueue,
             .next = tail
         };
 
