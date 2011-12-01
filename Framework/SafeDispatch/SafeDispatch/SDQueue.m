@@ -93,6 +93,8 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
     // TODO: add label support
     dispatch_queue_t queue = dispatch_queue_create(NULL, attribute);
+    dispatch_set_target_queue(queue, dispatch_get_global_queue(priority, 0));
+
     self = [self initWithGCDQueue:queue concurrent:concurrent private:YES];
     dispatch_release(queue);
 
