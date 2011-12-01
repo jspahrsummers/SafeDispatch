@@ -70,6 +70,13 @@
 @property (nonatomic, readonly, getter = isCompleted) BOOL completed;
 
 /**
+ * Schedules a block to run when the receiver is marked as <completed>.
+ *
+ * @param block A block to dispatch upon completion.
+ */
+- (void)runWhenCompleted:(dispatch_block_t)block;
+
+/**
  * Blocks the current thread, waiting indefinitely for the dispatch group to
  * complete.
  */

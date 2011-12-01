@@ -61,6 +61,14 @@
 
 #pragma mark Completion
 
+- (void)runWhenCompleted:(dispatch_block_t)block; {
+    dispatch_queue_t initialQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+    dispatch_group_notify(m_dispatchGroup, initialQueue, ^{
+        [self.destinationQueue runAsynchronously:block];
+    });
+}
+
 - (void)wait; {
     dispatch_group_wait(m_dispatchGroup, DISPATCH_TIME_FOREVER);
 }
