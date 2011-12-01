@@ -18,6 +18,11 @@
  */
 
 /**
+ * Returns the default priority concurrent global queue.
+ */
++ (SDQueue *)concurrentGlobalQueue;
+
+/**
  * The queue upon which the current code is executing.
  *
  * This may be the <mainQueue>, one of the global queues, or a custom queue.

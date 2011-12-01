@@ -45,6 +45,10 @@ static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAs
 
 #pragma mark Lifecycle
 
++ (SDQueue *)concurrentGlobalQueue; {
+    return [self concurrentGlobalQueueWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+}
+
 + (SDQueue *)currentQueue; {
     return [self queueWithGCDQueue:dispatch_get_current_queue() concurrent:NO private:NO];
 }
