@@ -18,10 +18,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
 static const void * const SDDispatchQueueAssociatedQueueKey = "SDDispatchQueueAssociatedQueue";
 
-@interface SDQueue () {
-    dispatch_queue_t m_dispatchQueue;
-}
-
+@interface SDQueue ()
 @property (nonatomic, readonly) dispatch_queue_t dispatchQueue;
 @property (readonly, getter = isCurrentQueue) BOOL currentQueue;
 @end
