@@ -7,7 +7,7 @@
 //
 
 #import "SDGroupTests.h"
-#import <SafeDispatch/SafeDispatch.h>
+#import "SafeDispatch.h"
 #import <libkern/OSAtomic.h>
 
 @implementation SDGroupTests

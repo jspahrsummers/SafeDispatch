@@ -6,8 +6,8 @@
 //  Released into the public domain.
 //
 
-#import <SafeDispatch/SDGroup.h>
-#import <SafeDispatch/SDQueue.h>
+#import "SDGroup.h"
+#import "SDQueue.h"
 
 @interface SDGroup ()
 @property (nonatomic, readonly) dispatch_group_t dispatchGroup;

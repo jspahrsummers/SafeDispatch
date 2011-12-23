@@ -6,5 +6,5 @@
 //  Released into the public domain.
 //
 
-#import <SafeDispatch/SDGroup.h>
-#import <SafeDispatch/SDQueue.h>
+#import "SDGroup.h"
+#import "SDQueue.h"

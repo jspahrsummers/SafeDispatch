@@ -7,7 +7,7 @@
 //
 
 #import "SDQueueTests.h"
-#import <SafeDispatch/SDQueue.h>
+#import "SDQueue.h"
 
 @implementation SDQueueTests
 

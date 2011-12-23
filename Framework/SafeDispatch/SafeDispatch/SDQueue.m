@@ -6,7 +6,7 @@
 //  Released into the public domain.
 //
 
-#import <SafeDispatch/SDQueue.h>
+#import "SDQueue.h"
 
 typedef struct sd_dispatch_queue_stack {
     dispatch_queue_t queue;
