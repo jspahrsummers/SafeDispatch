@@ -8,6 +8,7 @@
 
 #import "SDQueueTests.h"
 #import "SDQueue.h"
+#import <libkern/OSAtomic.h>
 
 @implementation SDQueueTests
 
