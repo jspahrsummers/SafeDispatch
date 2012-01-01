@@ -126,4 +126,23 @@
     STAssertTrue(epilogueDone, @"");
 }
 
+- (void)testCurrentQueue {
+    SDQueue *unitTestQueue = [SDQueue currentQueue];
+    SDQueue *firstQueue = [[SDQueue alloc] init];
+    SDQueue *secondQueue = [[SDQueue alloc] init];
+
+    STAssertTrue(unitTestQueue.currentQueue, @"");
+
+    [firstQueue runSynchronously:^{
+        STAssertTrue(unitTestQueue.currentQueue, @"");
+        STAssertTrue(firstQueue.currentQueue, @"");
+        
+        [secondQueue runSynchronously:^{
+            STAssertTrue(unitTestQueue.currentQueue, @"");
+            STAssertTrue(firstQueue.currentQueue, @"");
+            STAssertTrue(secondQueue.currentQueue, @"");
+        }];
+    }];
+}
+
 @end

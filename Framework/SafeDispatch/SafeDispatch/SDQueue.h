@@ -115,6 +115,15 @@
 @property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
 
 /**
+ * Whether the calling code is directly or indirectly running on this queue.
+ *
+ * For example, if the calling code is executing from a block on one queue, and
+ * that block was synchronously dispatched from another queue, both of those two
+ * queues would return `YES` for this property.
+ */
+@property (readonly, getter = isCurrentQueue) BOOL currentQueue;
+
+/**
  * Whether this queue is a private queue (`YES`) or one created by the system
  * (`NO`).
  *
