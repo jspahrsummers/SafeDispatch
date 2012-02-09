@@ -18,6 +18,9 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
 @interface SDQueue ()
 @property (nonatomic, readonly) dispatch_queue_t dispatchQueue;
+
+- (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withSynchronousBlock:(dispatch_block_t)block;
+- (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withAsynchronousBlock:(dispatch_block_t)block;
 @end
 
 @implementation SDQueue
@@ -214,7 +217,67 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     jumpBlock();
 }
 
-- (void)runAsynchronously:(dispatch_block_t)block; {
+- (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withSynchronousBlock:(dispatch_block_t)block; {
+    if (!block)
+        return;
+
+    dispatch_block_t prologue = self.prologueBlock;
+    dispatch_block_t epilogue = self.epilogueBlock;
+
+    BOOL isCurrentQueue = self.currentQueue;
+    dispatch_queue_t realCurrentQueue = dispatch_get_current_queue();
+
+    dispatch_queue_t trampolineQueue;
+    if (isCurrentQueue)
+        trampolineQueue = realCurrentQueue;
+    else
+        trampolineQueue = m_dispatchQueue;
+
+    dispatch_block_t trampoline = ^{
+        sd_dispatch_queue_stack *next;
+
+        // it's cheaper to get thread-specific data from the current queue than
+        // an arbitrary one
+        if (trampolineQueue == realCurrentQueue)
+            next = dispatch_get_specific(SDDispatchQueueStackKey);
+        else
+            next = dispatch_queue_get_specific(realCurrentQueue, SDDispatchQueueStackKey);
+
+        sd_dispatch_queue_stack head = {
+            .queue = realCurrentQueue,
+            .next = next
+        };
+
+        sd_dispatch_queue_stack *oldStack;
+        
+        // it's cheaper to get thread-specific data from the current queue than
+        // an arbitrary one
+        if (trampolineQueue == m_dispatchQueue) {
+            oldStack = dispatch_get_specific(SDDispatchQueueStackKey);
+        } else {
+            oldStack = dispatch_queue_get_specific(m_dispatchQueue, SDDispatchQueueStackKey);
+        }
+
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+
+        if (prologue)
+            prologue();
+
+        block();
+
+        if (epilogue)
+            epilogue();
+
+        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
+    };
+
+    if (isCurrentQueue)
+        trampoline();
+    else
+        function(m_dispatchQueue, trampoline);
+}
+
+- (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withAsynchronousBlock:(dispatch_block_t)block; {
     if (!block)
         return;
 
@@ -237,107 +300,27 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
     } copy];
 
-    dispatch_async(m_dispatchQueue, trampoline);
+    function(m_dispatchQueue, trampoline);
+}
+
+- (void)runAsynchronously:(dispatch_block_t)block; {
+    [self callDispatchFunction:&dispatch_async withAsynchronousBlock:block];
 }
 
 - (void)runBarrierAsynchronously:(dispatch_block_t)block; {
     NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
 
-    if (!block)
-        return;
-
-    dispatch_block_t prologue = self.prologueBlock;
-    dispatch_block_t epilogue = self.epilogueBlock;
-
-    dispatch_block_t copiedBlock = [block copy];
-
-    dispatch_block_t trampoline = [^{
-        NSAssert1(!dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
-
-        if (prologue)
-            prologue();
-
-        copiedBlock();
-
-        if (epilogue)
-            epilogue();
-
-        NSAssert1(!dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
-    } copy];
-
-    dispatch_barrier_async(m_dispatchQueue, trampoline);
+    [self callDispatchFunction:&dispatch_barrier_async withAsynchronousBlock:block];
 }
 
 - (void)runBarrierSynchronously:(dispatch_block_t)block; {
     NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
 
-    if (!block)
-        return;
-
-    dispatch_block_t prologue = self.prologueBlock;
-    dispatch_block_t epilogue = self.epilogueBlock;
-
-    dispatch_queue_t currentQueue = dispatch_get_current_queue();
-
-    dispatch_block_t trampoline = ^{
-        sd_dispatch_queue_stack head = {
-            .queue = currentQueue,
-            .next = dispatch_queue_get_specific(currentQueue, SDDispatchQueueStackKey)
-        };
-
-        sd_dispatch_queue_stack *oldStack = dispatch_queue_get_specific(m_dispatchQueue, SDDispatchQueueStackKey);
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
-
-        if (prologue)
-            prologue();
-
-        block();
-
-        if (epilogue)
-            epilogue();
-
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
-    };
-
-    if (self.currentQueue)
-        trampoline();
-    else
-        dispatch_barrier_sync(m_dispatchQueue, trampoline);
+    [self callDispatchFunction:&dispatch_barrier_sync withSynchronousBlock:block];
 }
 
 - (void)runSynchronously:(dispatch_block_t)block; {
-    if (!block)
-        return;
-
-    dispatch_block_t prologue = self.prologueBlock;
-    dispatch_block_t epilogue = self.epilogueBlock;
-
-    dispatch_queue_t currentQueue = dispatch_get_current_queue();
-
-    dispatch_block_t trampoline = ^{
-        sd_dispatch_queue_stack head = {
-            .queue = currentQueue,
-            .next = dispatch_queue_get_specific(currentQueue, SDDispatchQueueStackKey)
-        };
-
-        sd_dispatch_queue_stack *oldStack = dispatch_queue_get_specific(m_dispatchQueue, SDDispatchQueueStackKey);
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
-
-        if (prologue)
-            prologue();
-
-        block();
-
-        if (epilogue)
-            epilogue();
-
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
-    };
-
-    if (self.currentQueue)
-        trampoline();
-    else
-        dispatch_sync(m_dispatchQueue, trampoline);
+    [self callDispatchFunction:&dispatch_sync withSynchronousBlock:block];
 }
 
 @end
