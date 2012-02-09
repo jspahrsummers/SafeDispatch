@@ -161,7 +161,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
     NSUInteger count = [sortedQueues count];
 
-    __block dispatch_block_t recursiveJumpBlock = NULL;
+    __block __weak dispatch_block_t recursiveJumpBlock = NULL;
     __block NSUInteger currentIndex = 0;
 
     dispatch_block_t jumpBlock = [^{
@@ -196,7 +196,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
     NSUInteger count = [sortedQueues count];
 
-    __block dispatch_block_t recursiveJumpBlock = NULL;
+    __block __weak dispatch_block_t recursiveJumpBlock = NULL;
     __block NSUInteger nextIndex = 0;
 
     dispatch_block_t jumpBlock = ^{
