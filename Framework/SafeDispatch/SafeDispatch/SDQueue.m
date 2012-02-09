@@ -227,38 +227,26 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     BOOL isCurrentQueue = self.currentQueue;
     dispatch_queue_t realCurrentQueue = dispatch_get_current_queue();
 
-    dispatch_queue_t trampolineQueue;
-    if (isCurrentQueue)
-        trampolineQueue = realCurrentQueue;
-    else
-        trampolineQueue = m_dispatchQueue;
-
     dispatch_block_t trampoline = ^{
-        sd_dispatch_queue_stack *next;
+        sd_dispatch_queue_stack *oldStack = NULL;
 
-        // it's cheaper to get thread-specific data from the current queue than
-        // an arbitrary one
-        if (trampolineQueue == realCurrentQueue)
-            next = dispatch_get_specific(SDDispatchQueueStackKey);
-        else
-            next = dispatch_queue_get_specific(realCurrentQueue, SDDispatchQueueStackKey);
-
-        sd_dispatch_queue_stack head = {
-            .queue = realCurrentQueue,
-            .next = next
-        };
-
-        sd_dispatch_queue_stack *oldStack;
-        
-        // it's cheaper to get thread-specific data from the current queue than
-        // an arbitrary one
-        if (trampolineQueue == m_dispatchQueue) {
+        // if we're just now jumping to our dispatch queue, we need to copy over
+        // the call stack of queues, so that -isCurrentQueue works properly for
+        // all of those queues
+        if (!isCurrentQueue) {
+            // get the stack of queues from the dispatch queue we were just on,
+            // and add it to our stack
+            sd_dispatch_queue_stack head = {
+                .queue = realCurrentQueue,
+                .next = dispatch_queue_get_specific(realCurrentQueue, SDDispatchQueueStackKey)
+            };
+            
+            // then save that as the stack of our current queue (preserving the
+            // original value, to be restored once this block is popped)
             oldStack = dispatch_get_specific(SDDispatchQueueStackKey);
-        } else {
-            oldStack = dispatch_queue_get_specific(m_dispatchQueue, SDDispatchQueueStackKey);
-        }
 
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+            dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+        }
 
         if (prologue)
             prologue();
@@ -268,7 +256,10 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         if (epilogue)
             epilogue();
 
-        dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
+        if (!isCurrentQueue) {
+            // restore the original stack
+            dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
+        }
     };
 
     if (isCurrentQueue)
