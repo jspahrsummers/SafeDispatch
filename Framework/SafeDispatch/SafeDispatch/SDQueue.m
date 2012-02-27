@@ -34,6 +34,9 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 @synthesize epilogueBlock = m_epilogueBlock;
 
 - (BOOL)isCurrentQueue {
+    if (m_dispatchQueue == dispatch_get_main_queue() && [NSThread isMainThread])
+        return YES;
+
     if (dispatch_get_current_queue() == m_dispatchQueue)
         return YES;
 
