@@ -301,6 +301,14 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     [self callDispatchFunction:&dispatch_async withAsynchronousBlock:block];
 }
 
+- (void)runAsynchronouslyIfNotCurrent:(dispatch_block_t)block; {
+    if (self.currentQueue) {
+        [self runSynchronously:block];
+    } else {
+        [self runAsynchronously:block];
+    }
+}
+
 - (void)runBarrierAsynchronously:(dispatch_block_t)block; {
     NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
 

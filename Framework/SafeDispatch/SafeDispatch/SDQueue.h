@@ -170,6 +170,18 @@
 - (void)runAsynchronously:(dispatch_block_t)block;
 
 /**
+ * Adds the given block to the end of the queue and returns immediately, unless
+ * the receiver is the current queue.
+ *
+ * If the receiver is a serial queue and (directly or indirectly) already
+ * running the calling code, `block` executes immediately without being queued.
+ *
+ * @param block The block to execute when the queue is available. If `NULL`,
+ * nothing happens.
+ */
+- (void)runAsynchronouslyIfNotCurrent:(dispatch_block_t)block;
+
+/**
  * Adds the given block to the end of the queue and waits for it to execute.
  *
  * If the receiver is a serial queue and (directly or indirectly) already
