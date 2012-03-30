@@ -162,6 +162,16 @@
  */
 
 /**
+ * Adds the given block to the end of the queue, after the given delay has
+ * passed.
+ *
+ * @param delay The delay before adding the block to the end of the queue.
+ * @param block The block to execute after `delay` has passed, and thereafter
+ * when the queue is available. If `NULL`, nothing happens.
+ */
+- (void)afterDelay:(NSTimeInterval)delay runAsynchronously:(dispatch_block_t)block;
+
+/**
  * Adds the given block to the end of the queue and returns immediately.
  *
  * @param block The block to execute when the queue is available. If `NULL`,

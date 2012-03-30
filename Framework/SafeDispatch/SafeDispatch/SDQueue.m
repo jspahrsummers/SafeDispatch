@@ -19,8 +19,8 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 @interface SDQueue ()
 @property (nonatomic, readonly) dispatch_queue_t dispatchQueue;
 
+- (dispatch_block_t)asynchronousTrampolineWithBlock:(dispatch_block_t)block;
 - (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withSynchronousBlock:(dispatch_block_t)block;
-- (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withAsynchronousBlock:(dispatch_block_t)block;
 @end
 
 @implementation SDQueue
@@ -271,16 +271,15 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         function(m_dispatchQueue, trampoline);
 }
 
-- (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withAsynchronousBlock:(dispatch_block_t)block; {
-    if (!block)
-        return;
+- (dispatch_block_t)asynchronousTrampolineWithBlock:(dispatch_block_t)block; {
+    NSParameterAssert(block);
 
     dispatch_block_t prologue = self.prologueBlock;
     dispatch_block_t epilogue = self.epilogueBlock;
 
     dispatch_block_t copiedBlock = [block copy];
 
-    dispatch_block_t trampoline = [^{
+    return [^{
         NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
 
         if (prologue)
@@ -293,12 +292,26 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
         NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
     } copy];
+}
 
-    function(m_dispatchQueue, trampoline);
+- (void)afterDelay:(NSTimeInterval)delay runAsynchronously:(dispatch_block_t)block; {
+    NSParameterAssert(delay >= 0);
+
+    if (!block)
+        return;
+
+    dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
+    dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
+
+    dispatch_after(time, m_dispatchQueue, trampoline);
 }
 
 - (void)runAsynchronously:(dispatch_block_t)block; {
-    [self callDispatchFunction:&dispatch_async withAsynchronousBlock:block];
+    if (!block)
+        return;
+
+    dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
+    dispatch_async(m_dispatchQueue, trampoline);
 }
 
 - (void)runAsynchronouslyIfNotCurrent:(dispatch_block_t)block; {
@@ -312,7 +325,11 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 - (void)runBarrierAsynchronously:(dispatch_block_t)block; {
     NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
 
-    [self callDispatchFunction:&dispatch_barrier_async withAsynchronousBlock:block];
+    if (!block)
+        return;
+
+    dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
+    dispatch_barrier_async(m_dispatchQueue, trampoline);
 }
 
 - (void)runBarrierSynchronously:(dispatch_block_t)block; {

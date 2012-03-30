@@ -145,4 +145,20 @@
     }];
 }
 
+- (void)testRunAfterDelay {
+    __block BOOL finished = NO;
+
+    SDQueue *queue = [[SDQueue alloc] init];
+    [queue afterDelay:0.1 runAsynchronously:^{
+        STAssertTrue(queue.currentQueue, @"");
+
+        finished = YES;
+        OSMemoryBarrier();
+    }];
+
+    STAssertFalse(finished, @"");
+    [NSThread sleepForTimeInterval:0.15];
+    STAssertTrue(finished, @"");
+}
+
 @end
