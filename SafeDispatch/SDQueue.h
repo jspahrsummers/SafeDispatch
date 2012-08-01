@@ -10,6 +10,9 @@
 
 /**
  * Represents a Grand Central Dispatch queue.
+ *
+ * Unless otherwise specified in the documentation (e.g., for
+ * -runSynchronously:), methods of this class are not exception-safe.
  */
 @interface SDQueue : NSObject
 
@@ -199,6 +202,9 @@
  *
  * @param block The block to execute when the queue is available. If `NULL`,
  * nothing happens.
+ *
+ * @note This method is exception-safe. Any exceptions thrown from within
+ * `block` will be propagated to the caller of this method.
  */
 - (void)runSynchronously:(dispatch_block_t)block;
 
@@ -235,6 +241,9 @@
  * @param block The block to execute when the queue is available. If `NULL`,
  * nothing happens.
  *
+ * @note This method is exception-safe. Any exceptions thrown from within
+ * `block` will be propagated to the caller of this method.
+ *
  * @warning *Important:* This should not be used with a global concurrent queue.
  * You can check the type of queue you have with the <concurrent> and <private>
  * properties.
@@ -260,6 +269,9 @@
  *
  * If this method is the only tool being used to synchronize the actions of
  * multiple queues, it will not deadlock.
+ *
+ * @note This method is exception-safe. Any exceptions thrown from within
+ * `block` will be propagated to the caller of this method.
  */
 + (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block;
 @end

@@ -161,4 +161,17 @@
     STAssertTrue(finished, @"");
 }
 
+- (void)testRethrowsExceptions {
+	NSException *testException = [NSException exceptionWithName:@"TestException" reason:nil userInfo:nil];
+	SDQueue *queue = [[SDQueue alloc] init];
+
+	@try {
+		[queue runSynchronously:^{
+			@throw testException;
+		}];
+	} @catch (NSException *ex) {
+		STAssertEqualObjects(ex, testException, @"");
+	}
+}
+
 @end

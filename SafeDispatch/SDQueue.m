@@ -224,6 +224,8 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     BOOL isCurrentQueue = self.currentQueue;
     dispatch_queue_t realCurrentQueue = dispatch_get_current_queue();
 
+	__block NSException *thrownException = nil;
+
     dispatch_block_t trampoline = ^{
         sd_dispatch_queue_stack *oldStack = NULL;
 
@@ -245,13 +247,22 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
             dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
         }
 
-        if (prologue)
-            prologue();
+		@try {
+			// although this will catch exceptions coming from the prologue or
+			// epilogue blocks, we don't really support it (since the
+			// asynchronous case would have different behavior)
+			if (prologue)
+				prologue();
 
-        block();
+			block();
 
-        if (epilogue)
-            epilogue();
+			if (epilogue)
+				epilogue();
+		} @catch (NSException *ex) {
+			// exceptions aren't allowed to escape a dispatch block, so catch it
+			// and re-throw once we're off the queue
+			thrownException = ex;
+		}
 
         if (!isCurrentQueue) {
             // restore the original stack
@@ -263,6 +274,10 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         trampoline();
     else
         function(_dispatchQueue, trampoline);
+	
+	if (thrownException) {
+		@throw thrownException;
+	}
 }
 
 - (dispatch_block_t)asynchronousTrampolineWithBlock:(dispatch_block_t)block; {
