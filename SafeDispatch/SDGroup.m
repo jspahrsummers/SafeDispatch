@@ -17,9 +17,6 @@
 
 #pragma mark Properties
 
-@synthesize destinationQueue = m_destinationQueue;
-@synthesize dispatchGroup = m_dispatchGroup;
-
 - (BOOL)isCompleted {
     return [self waitUntilDate:nil];
 }
@@ -35,15 +32,15 @@
     if (!self)
         return nil;
 
-    m_destinationQueue = queue;
-    m_dispatchGroup = dispatch_group_create();
+    _destinationQueue = queue;
+    _dispatchGroup = dispatch_group_create();
 
     return self;
 }
 
 - (void)dealloc {
-    dispatch_release(m_dispatchGroup);
-    m_dispatchGroup = NULL;
+    dispatch_release(_dispatchGroup);
+    _dispatchGroup = NULL;
 }
 
 #pragma mark Dispatch
@@ -53,10 +50,10 @@
 
     dispatch_block_t groupBlock = [^{
         copiedBlock();
-        dispatch_group_leave(m_dispatchGroup);
+        dispatch_group_leave(_dispatchGroup);
     } copy];
 
-    dispatch_group_enter(m_dispatchGroup);
+    dispatch_group_enter(_dispatchGroup);
     [self.destinationQueue runAsynchronously:groupBlock];
 }
 
@@ -65,13 +62,13 @@
 - (void)runWhenCompleted:(dispatch_block_t)block; {
     dispatch_queue_t initialQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
-    dispatch_group_notify(m_dispatchGroup, initialQueue, ^{
+    dispatch_group_notify(_dispatchGroup, initialQueue, ^{
         [self.destinationQueue runAsynchronously:block];
     });
 }
 
 - (void)wait; {
-    dispatch_group_wait(m_dispatchGroup, DISPATCH_TIME_FOREVER);
+    dispatch_group_wait(_dispatchGroup, DISPATCH_TIME_FOREVER);
 }
 
 - (BOOL)waitUntilDate:(NSDate *)date; {
@@ -79,7 +76,7 @@
     int64_t nanoseconds = (int64_t)(seconds * 1e9);
 
     dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, nanoseconds);
-    return dispatch_group_wait(m_dispatchGroup, timeout) == 0;
+    return dispatch_group_wait(_dispatchGroup, timeout) == 0;
 }
 
 @end

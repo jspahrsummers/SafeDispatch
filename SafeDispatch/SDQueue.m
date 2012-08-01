@@ -27,22 +27,16 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
 #pragma mark Properties
 
-@synthesize dispatchQueue = m_dispatchQueue;
-@synthesize concurrent = m_concurrent;
-@synthesize private = m_private;
-@synthesize prologueBlock = m_prologueBlock;
-@synthesize epilogueBlock = m_epilogueBlock;
-
 - (BOOL)isCurrentQueue {
-    if (m_dispatchQueue == dispatch_get_main_queue() && [NSThread isMainThread])
+    if (_dispatchQueue == dispatch_get_main_queue() && [NSThread isMainThread])
         return YES;
 
-    if (dispatch_get_current_queue() == m_dispatchQueue)
+    if (dispatch_get_current_queue() == _dispatchQueue)
         return YES;
 
     sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
     while (stack) {
-        if (stack->queue == m_dispatchQueue)
+        if (stack->queue == _dispatchQueue)
             return YES;
 
         stack = stack->next;
@@ -98,10 +92,10 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         return nil;
 
     dispatch_retain(queue);
-    m_dispatchQueue = queue;
+    _dispatchQueue = queue;
 
-    m_concurrent = concurrent;
-    m_private = private;
+    _concurrent = concurrent;
+    _private = private;
 
     return self;
 }
@@ -130,17 +124,17 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     if (self.private) {
         // attempt to flush the queue to avoid a crash from releasing it while it
         // still has blocks
-        dispatch_barrier_sync(m_dispatchQueue, ^{});
+        dispatch_barrier_sync(_dispatchQueue, ^{});
     }
 
-    dispatch_release(m_dispatchQueue);
-    m_dispatchQueue = NULL;
+    dispatch_release(_dispatchQueue);
+    _dispatchQueue = NULL;
 }
 
 #pragma mark NSObject overrides
 
 - (NSUInteger)hash {
-    return (NSUInteger)m_dispatchQueue;
+    return (NSUInteger)_dispatchQueue;
 }
 
 - (BOOL)isEqual:(SDQueue *)queue {
@@ -248,7 +242,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
             // original value, to be restored once this block is popped)
             oldStack = dispatch_get_specific(SDDispatchQueueStackKey);
 
-            dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+            dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
         }
 
         if (prologue)
@@ -261,14 +255,14 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
         if (!isCurrentQueue) {
             // restore the original stack
-            dispatch_queue_set_specific(m_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
+            dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
         }
     };
 
     if (isCurrentQueue)
         trampoline();
     else
-        function(m_dispatchQueue, trampoline);
+        function(_dispatchQueue, trampoline);
 }
 
 - (dispatch_block_t)asynchronousTrampolineWithBlock:(dispatch_block_t)block; {
@@ -303,7 +297,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
     dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
     dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
 
-    dispatch_after(time, m_dispatchQueue, trampoline);
+    dispatch_after(time, _dispatchQueue, trampoline);
 }
 
 - (void)runAsynchronously:(dispatch_block_t)block; {
@@ -311,7 +305,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         return;
 
     dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
-    dispatch_async(m_dispatchQueue, trampoline);
+    dispatch_async(_dispatchQueue, trampoline);
 }
 
 - (void)runAsynchronouslyIfNotCurrent:(dispatch_block_t)block; {
@@ -329,7 +323,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
         return;
 
     dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
-    dispatch_barrier_async(m_dispatchQueue, trampoline);
+    dispatch_barrier_async(_dispatchQueue, trampoline);
 }
 
 - (void)runBarrierSynchronously:(dispatch_block_t)block; {
