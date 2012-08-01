@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Framework/SafeDispatch/SafeDispatch.xcodeproj">
+      location = "self:SafeDispatch.xcodeproj">
    </FileRef>
 </Workspace>
