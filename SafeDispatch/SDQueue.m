@@ -23,6 +23,25 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 - (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withSynchronousBlock:(dispatch_block_t)block;
 @end
 
+/*
+ * Sorting function for use with -[NSArray sortedArrayUsingFunction:context:].
+ *
+ * This applies a deterministic total ordering to SDQueues based on their
+ * underlying GCD queues, and so is used to implement multi-queue
+ * synchronization (where an arbitrary ordering could easily lead to deadlocks).
+ */
+static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context) {
+	dispatch_queue_t dispatchA = queueA.dispatchQueue;
+	dispatch_queue_t dispatchB = queueB.dispatchQueue;
+
+	if (dispatchA < dispatchB)
+		return NSOrderedAscending;
+	else if (dispatchA > dispatchB)
+		return NSOrderedDescending;
+	else
+		return NSOrderedSame;
+}
+
 @implementation SDQueue
 
 #pragma mark Properties
@@ -111,7 +130,7 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 - (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent label:(NSString *)label; {
     dispatch_queue_attr_t attribute = (concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
 
-    dispatch_queue_t queue = dispatch_queue_create([label UTF8String], attribute);
+    dispatch_queue_t queue = dispatch_queue_create(label.UTF8String, attribute);
     dispatch_set_target_queue(queue, dispatch_get_global_queue(priority, 0));
 
     self = [self initWithGCDQueue:queue concurrent:concurrent private:YES];
@@ -147,19 +166,8 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 #pragma mark Dispatch
 
 + (void)synchronizeQueues:(NSArray *)queues runAsynchronously:(dispatch_block_t)block; {
-    NSArray *sortedQueues = [queues sortedArrayUsingComparator:^ NSComparisonResult (SDQueue *queueA, SDQueue *queueB){
-        dispatch_queue_t dispatchA = queueA.dispatchQueue;
-        dispatch_queue_t dispatchB = queueB.dispatchQueue;
-
-        if (dispatchA < dispatchB)
-            return NSOrderedAscending;
-        else if (dispatchA > dispatchB)
-            return NSOrderedDescending;
-        else
-            return NSOrderedSame;
-    }];
-
-    NSUInteger count = [sortedQueues count];
+    NSArray *sortedQueues = [queues sortedArrayUsingFunction:&compareQueues context:NULL];
+    NSUInteger count = sortedQueues.count;
 
     __block __weak dispatch_block_t recursiveJumpBlock = NULL;
     __block NSUInteger currentIndex = 0;
@@ -182,19 +190,8 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 }
 
 + (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block; {
-    NSArray *sortedQueues = [queues sortedArrayUsingComparator:^ NSComparisonResult (SDQueue *queueA, SDQueue *queueB){
-        dispatch_queue_t dispatchA = queueA.dispatchQueue;
-        dispatch_queue_t dispatchB = queueB.dispatchQueue;
-
-        if (dispatchA < dispatchB)
-            return NSOrderedAscending;
-        else if (dispatchA > dispatchB)
-            return NSOrderedDescending;
-        else
-            return NSOrderedSame;
-    }];
-
-    NSUInteger count = [sortedQueues count];
+    NSArray *sortedQueues = [queues sortedArrayUsingFunction:&compareQueues context:NULL];
+    NSUInteger count = sortedQueues.count;
 
     __block __weak dispatch_block_t recursiveJumpBlock = NULL;
     __block NSUInteger nextIndex = 0;
