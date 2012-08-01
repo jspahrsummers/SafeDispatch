@@ -153,7 +153,10 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 #pragma mark NSObject overrides
 
 - (NSUInteger)hash {
-	return (NSUInteger)_dispatchQueue;
+	// shift off some low bits that will be very similar
+	// (this is still a really crappy hash, but SDQueues probably shouldn't be
+	// in hashed collections anyways)
+	return (NSUInteger)_dispatchQueue >> 4;
 }
 
 - (BOOL)isEqual:(SDQueue *)queue {
