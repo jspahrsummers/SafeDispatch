@@ -651,6 +651,10 @@
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				OTHER_CFLAGS = (
+					"-fobjc-arc-exceptions",
+					$OTHER_CFLAGS,
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -664,6 +668,7 @@
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -727,6 +732,7 @@
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				SDKROOT = macosx;
 			};
 			name = Profile;
