@@ -423,13 +423,10 @@
 			baseConfigurationReference = D0F3D3D915C914FA00A468C6 /* Debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
-				TEST_AFTER_BUILD = YES;
 			};
 			name = Debug;
 		};
@@ -438,13 +435,10 @@
 			baseConfigurationReference = D0F3D3DB15C914FA00A468C6 /* Release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
-				TEST_AFTER_BUILD = YES;
 			};
 			name = Release;
 		};
@@ -479,7 +473,6 @@
 			baseConfigurationReference = D0F3D3E415C914FA00A468C6 /* Mac-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				INFOPLIST_FILE = "SafeDispatchTests/SafeDispatchTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -492,7 +485,6 @@
 			baseConfigurationReference = D0F3D3E415C914FA00A468C6 /* Mac-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				INFOPLIST_FILE = "SafeDispatchTests/SafeDispatchTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -505,13 +497,10 @@
 			baseConfigurationReference = D0F3D3DA15C914FA00A468C6 /* Profile.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
-				TEST_AFTER_BUILD = YES;
 			};
 			name = Profile;
 		};
@@ -533,7 +522,6 @@
 			baseConfigurationReference = D0F3D3E415C914FA00A468C6 /* Mac-Application.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
 				INFOPLIST_FILE = "SafeDispatchTests/SafeDispatchTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
