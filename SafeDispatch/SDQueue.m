@@ -1,16 +1,16 @@
 //
-//  SDQueue.m
-//  SafeDispatch
+//	SDQueue.m
+//	SafeDispatch
 //
-//  Created by Justin Spahr-Summers on 29.11.11.
-//  Released into the public domain.
+//	Created by Justin Spahr-Summers on 29.11.11.
+//	Released into the public domain.
 //
 
 #import "SDQueue.h"
 
 typedef struct sd_dispatch_queue_stack {
-    dispatch_queue_t queue;
-    struct sd_dispatch_queue_stack *next;
+	dispatch_queue_t queue;
+	struct sd_dispatch_queue_stack *next;
 } sd_dispatch_queue_stack;
 
 // used with dispatch_set_queue_specific()
@@ -47,202 +47,202 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 #pragma mark Properties
 
 - (BOOL)isCurrentQueue {
-    if (_dispatchQueue == dispatch_get_main_queue() && [NSThread isMainThread])
-        return YES;
+	if (_dispatchQueue == dispatch_get_main_queue() && [NSThread isMainThread])
+		return YES;
 
-    if (dispatch_get_current_queue() == _dispatchQueue)
-        return YES;
+	if (dispatch_get_current_queue() == _dispatchQueue)
+		return YES;
 
-    sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
-    while (stack) {
-        if (stack->queue == _dispatchQueue)
-            return YES;
+	sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
+	while (stack) {
+		if (stack->queue == _dispatchQueue)
+			return YES;
 
-        stack = stack->next;
-    }
+		stack = stack->next;
+	}
 
-    return NO;
+	return NO;
 }
 
 #pragma mark Lifecycle
 
 + (SDQueue *)concurrentGlobalQueue; {
-    static SDQueue *queue = nil;
-    static dispatch_once_t pred;
+	static SDQueue *queue = nil;
+	static dispatch_once_t pred;
 
-    dispatch_once(&pred, ^{
-        queue = [self concurrentGlobalQueueWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
-    });
+	dispatch_once(&pred, ^{
+		queue = [self concurrentGlobalQueueWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+	});
 
-    return queue;
+	return queue;
 }
 
 + (SDQueue *)currentQueue; {
-    return [self queueWithGCDQueue:dispatch_get_current_queue() concurrent:NO private:NO];
+	return [self queueWithGCDQueue:dispatch_get_current_queue() concurrent:NO private:NO];
 }
 
 + (SDQueue *)concurrentGlobalQueueWithPriority:(dispatch_queue_priority_t)priority; {
-    dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
-    return [self queueWithGCDQueue:queue concurrent:YES private:NO];
+	dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
+	return [self queueWithGCDQueue:queue concurrent:YES private:NO];
 }
 
 + (SDQueue *)mainQueue; {
-    static SDQueue *queue = nil;
-    static dispatch_once_t pred;
+	static SDQueue *queue = nil;
+	static dispatch_once_t pred;
 
-    dispatch_once(&pred, ^{
-        queue = [self queueWithGCDQueue:dispatch_get_main_queue() concurrent:NO private:NO];
-    });
+	dispatch_once(&pred, ^{
+		queue = [self queueWithGCDQueue:dispatch_get_main_queue() concurrent:NO private:NO];
+	});
 
-    return queue;
+	return queue;
 }
 
 + (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private; {
-    return [[self alloc] initWithGCDQueue:queue concurrent:concurrent private:private];
+	return [[self alloc] initWithGCDQueue:queue concurrent:concurrent private:private];
 }
 
 - (id)init; {
-    return [self initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+	return [self initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
 
 - (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private; {
-    self = [super init];
-    if (!self || !queue)
-        return nil;
+	self = [super init];
+	if (!self || !queue)
+		return nil;
 
-    dispatch_retain(queue);
-    _dispatchQueue = queue;
+	dispatch_retain(queue);
+	_dispatchQueue = queue;
 
-    _concurrent = concurrent;
-    _private = private;
+	_concurrent = concurrent;
+	_private = private;
 
-    return self;
+	return self;
 }
 
 - (id)initWithPriority:(dispatch_queue_priority_t)priority; {
-    return [self initWithPriority:priority concurrent:NO];
+	return [self initWithPriority:priority concurrent:NO];
 }
 
 - (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent; {
-    return [self initWithPriority:priority concurrent:concurrent label:@"org.jspahrsummers.SafeDispatch.customQueue"];
+	return [self initWithPriority:priority concurrent:concurrent label:@"org.jspahrsummers.SafeDispatch.customQueue"];
 }
 
 - (id)initWithPriority:(dispatch_queue_priority_t)priority concurrent:(BOOL)concurrent label:(NSString *)label; {
-    dispatch_queue_attr_t attribute = (concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
+	dispatch_queue_attr_t attribute = (concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
 
-    dispatch_queue_t queue = dispatch_queue_create(label.UTF8String, attribute);
-    dispatch_set_target_queue(queue, dispatch_get_global_queue(priority, 0));
+	dispatch_queue_t queue = dispatch_queue_create(label.UTF8String, attribute);
+	dispatch_set_target_queue(queue, dispatch_get_global_queue(priority, 0));
 
-    self = [self initWithGCDQueue:queue concurrent:concurrent private:YES];
-    dispatch_release(queue);
+	self = [self initWithGCDQueue:queue concurrent:concurrent private:YES];
+	dispatch_release(queue);
 
-    return self;
+	return self;
 }
 
 - (void)dealloc {
-    if (self.private) {
-        // attempt to flush the queue to avoid a crash from releasing it while it
-        // still has blocks
-        dispatch_barrier_sync(_dispatchQueue, ^{});
-    }
+	if (self.private) {
+		// attempt to flush the queue to avoid a crash from releasing it while it
+		// still has blocks
+		dispatch_barrier_sync(_dispatchQueue, ^{});
+	}
 
-    dispatch_release(_dispatchQueue);
-    _dispatchQueue = NULL;
+	dispatch_release(_dispatchQueue);
+	_dispatchQueue = NULL;
 }
 
 #pragma mark NSObject overrides
 
 - (NSUInteger)hash {
-    return (NSUInteger)_dispatchQueue;
+	return (NSUInteger)_dispatchQueue;
 }
 
 - (BOOL)isEqual:(SDQueue *)queue {
-    if (![queue isKindOfClass:[SDQueue class]])
-        return NO;
+	if (![queue isKindOfClass:[SDQueue class]])
+		return NO;
 
-    return self.dispatchQueue == queue.dispatchQueue;
+	return self.dispatchQueue == queue.dispatchQueue;
 }
 
 #pragma mark Dispatch
 
 + (void)synchronizeQueues:(NSArray *)queues runAsynchronously:(dispatch_block_t)block; {
-    NSArray *sortedQueues = [queues sortedArrayUsingFunction:&compareQueues context:NULL];
-    NSUInteger count = sortedQueues.count;
+	NSArray *sortedQueues = [queues sortedArrayUsingFunction:&compareQueues context:NULL];
+	NSUInteger count = sortedQueues.count;
 
-    __block __weak dispatch_block_t recursiveJumpBlock = NULL;
-    __block NSUInteger currentIndex = 0;
+	__block __weak dispatch_block_t recursiveJumpBlock = NULL;
+	__block NSUInteger currentIndex = 0;
 
-    dispatch_block_t jumpBlock = [^{
-        if (currentIndex >= count - 1) {
-            block();
-        } else {
-            ++currentIndex;
+	dispatch_block_t jumpBlock = [^{
+		if (currentIndex >= count - 1) {
+			block();
+		} else {
+			++currentIndex;
 
-            SDQueue *queue = [sortedQueues objectAtIndex:currentIndex];
-            [queue runBarrierSynchronously:recursiveJumpBlock];
-        }
-    } copy];
+			SDQueue *queue = [sortedQueues objectAtIndex:currentIndex];
+			[queue runBarrierSynchronously:recursiveJumpBlock];
+		}
+	} copy];
 
-    recursiveJumpBlock = jumpBlock;
+	recursiveJumpBlock = jumpBlock;
 
-    SDQueue *firstQueue = [sortedQueues objectAtIndex:0];
-    [firstQueue runBarrierAsynchronously:jumpBlock];
+	SDQueue *firstQueue = [sortedQueues objectAtIndex:0];
+	[firstQueue runBarrierAsynchronously:jumpBlock];
 }
 
 + (void)synchronizeQueues:(NSArray *)queues runSynchronously:(dispatch_block_t)block; {
-    NSArray *sortedQueues = [queues sortedArrayUsingFunction:&compareQueues context:NULL];
-    NSUInteger count = sortedQueues.count;
+	NSArray *sortedQueues = [queues sortedArrayUsingFunction:&compareQueues context:NULL];
+	NSUInteger count = sortedQueues.count;
 
-    __block __weak dispatch_block_t recursiveJumpBlock = NULL;
-    __block NSUInteger nextIndex = 0;
+	__block __weak dispatch_block_t recursiveJumpBlock = NULL;
+	__block NSUInteger nextIndex = 0;
 
-    dispatch_block_t jumpBlock = ^{
-        if (nextIndex >= count) {
-            block();
-        } else {
-            SDQueue *queue = [sortedQueues objectAtIndex:nextIndex];
-            ++nextIndex;
+	dispatch_block_t jumpBlock = ^{
+		if (nextIndex >= count) {
+			block();
+		} else {
+			SDQueue *queue = [sortedQueues objectAtIndex:nextIndex];
+			++nextIndex;
 
-            [queue runBarrierSynchronously:recursiveJumpBlock];
-        }
-    };
+			[queue runBarrierSynchronously:recursiveJumpBlock];
+		}
+	};
 
-    recursiveJumpBlock = jumpBlock;
-    jumpBlock();
+	recursiveJumpBlock = jumpBlock;
+	jumpBlock();
 }
 
 - (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withSynchronousBlock:(dispatch_block_t)block; {
-    if (!block)
-        return;
+	if (!block)
+		return;
 
-    dispatch_block_t prologue = self.prologueBlock;
-    dispatch_block_t epilogue = self.epilogueBlock;
+	dispatch_block_t prologue = self.prologueBlock;
+	dispatch_block_t epilogue = self.epilogueBlock;
 
-    BOOL isCurrentQueue = self.currentQueue;
-    dispatch_queue_t realCurrentQueue = dispatch_get_current_queue();
+	BOOL isCurrentQueue = self.currentQueue;
+	dispatch_queue_t realCurrentQueue = dispatch_get_current_queue();
 
 	__block NSException *thrownException = nil;
 
-    dispatch_block_t trampoline = ^{
-        sd_dispatch_queue_stack *oldStack = NULL;
+	dispatch_block_t trampoline = ^{
+		sd_dispatch_queue_stack *oldStack = NULL;
 
-        // if we're just now jumping to our dispatch queue, we need to copy over
-        // the call stack of queues, so that -isCurrentQueue works properly for
-        // all of those queues
-        if (!isCurrentQueue) {
-            // get the stack of queues from the dispatch queue we were just on,
-            // and add it to our stack
-            sd_dispatch_queue_stack head = {
-                .queue = realCurrentQueue,
-                .next = dispatch_queue_get_specific(realCurrentQueue, SDDispatchQueueStackKey)
-            };
-            
-            // then save that as the stack of our current queue (preserving the
-            // original value, to be restored once this block is popped)
-            oldStack = dispatch_get_specific(SDDispatchQueueStackKey);
+		// if we're just now jumping to our dispatch queue, we need to copy over
+		// the call stack of queues, so that -isCurrentQueue works properly for
+		// all of those queues
+		if (!isCurrentQueue) {
+			// get the stack of queues from the dispatch queue we were just on,
+			// and add it to our stack
+			sd_dispatch_queue_stack head = {
+				.queue = realCurrentQueue,
+				.next = dispatch_queue_get_specific(realCurrentQueue, SDDispatchQueueStackKey)
+			};
+			
+			// then save that as the stack of our current queue (preserving the
+			// original value, to be restored once this block is popped)
+			oldStack = dispatch_get_specific(SDDispatchQueueStackKey);
 
-            dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
-        }
+			dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
+		}
 
 		@try {
 			// although this will catch exceptions coming from the prologue or
@@ -261,16 +261,16 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 			thrownException = ex;
 		}
 
-        if (!isCurrentQueue) {
-            // restore the original stack
-            dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
-        }
-    };
+		if (!isCurrentQueue) {
+			// restore the original stack
+			dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
+		}
+	};
 
-    if (isCurrentQueue)
-        trampoline();
-    else
-        function(_dispatchQueue, trampoline);
+	if (isCurrentQueue)
+		trampoline();
+	else
+		function(_dispatchQueue, trampoline);
 	
 	if (thrownException) {
 		@throw thrownException;
@@ -278,74 +278,74 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 }
 
 - (dispatch_block_t)asynchronousTrampolineWithBlock:(dispatch_block_t)block; {
-    NSParameterAssert(block);
+	NSParameterAssert(block);
 
-    dispatch_block_t prologue = self.prologueBlock;
-    dispatch_block_t epilogue = self.epilogueBlock;
+	dispatch_block_t prologue = self.prologueBlock;
+	dispatch_block_t epilogue = self.epilogueBlock;
 
-    dispatch_block_t copiedBlock = [block copy];
+	dispatch_block_t copiedBlock = [block copy];
 
-    return [^{
-        NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
+	return [^{
+		NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
 
-        if (prologue)
-            prologue();
+		if (prologue)
+			prologue();
 
-        copiedBlock();
+		copiedBlock();
 
-        if (epilogue)
-            epilogue();
+		if (epilogue)
+			epilogue();
 
-        NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
-    } copy];
+		NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
+	} copy];
 }
 
 - (void)afterDelay:(NSTimeInterval)delay runAsynchronously:(dispatch_block_t)block; {
-    NSParameterAssert(delay >= 0);
+	NSParameterAssert(delay >= 0);
 
-    if (!block)
-        return;
+	if (!block)
+		return;
 
-    dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
-    dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
+	dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
+	dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC));
 
-    dispatch_after(time, _dispatchQueue, trampoline);
+	dispatch_after(time, _dispatchQueue, trampoline);
 }
 
 - (void)runAsynchronously:(dispatch_block_t)block; {
-    if (!block)
-        return;
+	if (!block)
+		return;
 
-    dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
-    dispatch_async(_dispatchQueue, trampoline);
+	dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
+	dispatch_async(_dispatchQueue, trampoline);
 }
 
 - (void)runAsynchronouslyIfNotCurrent:(dispatch_block_t)block; {
-    if (self.currentQueue) {
-        [self runSynchronously:block];
-    } else {
-        [self runAsynchronously:block];
-    }
+	if (self.currentQueue) {
+		[self runSynchronously:block];
+	} else {
+		[self runAsynchronously:block];
+	}
 }
 
 - (void)runBarrierAsynchronously:(dispatch_block_t)block; {
-    NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
+	NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
 
-    if (!block)
-        return;
+	if (!block)
+		return;
 
-    dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
-    dispatch_barrier_async(_dispatchQueue, trampoline);
+	dispatch_block_t trampoline = [self asynchronousTrampolineWithBlock:block];
+	dispatch_barrier_async(_dispatchQueue, trampoline);
 }
 
 - (void)runBarrierSynchronously:(dispatch_block_t)block; {
-    NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
+	NSAssert1(self.private || !self.concurrent, @"%s should not be used with a global concurrent queue", __func__);
 
-    [self callDispatchFunction:&dispatch_barrier_sync withSynchronousBlock:block];
+	[self callDispatchFunction:&dispatch_barrier_sync withSynchronousBlock:block];
 }
 
 - (void)runSynchronously:(dispatch_block_t)block; {
-    [self callDispatchFunction:&dispatch_sync withSynchronousBlock:block];
+	[self callDispatchFunction:&dispatch_sync withSynchronousBlock:block];
 }
 
 @end
