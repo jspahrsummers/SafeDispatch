@@ -500,6 +500,47 @@
 			};
 			name = Release;
 		};
+		D0F3D3EA15C9155B00A468C6 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3DA15C914FA00A468C6 /* Profile.xcconfig */;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+				TEST_AFTER_BUILD = YES;
+			};
+			name = Profile;
+		};
+		D0F3D3EB15C9155B00A468C6 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3E715C914FA00A468C6 /* Mac-Framework.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = "SafeDispatch/SafeDispatch-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Profile;
+		};
+		D0F3D3EC15C9155B00A468C6 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3E415C914FA00A468C6 /* Mac-Application.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				INFOPLIST_FILE = "SafeDispatchTests/SafeDispatchTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Profile;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -508,6 +549,7 @@
 			buildConfigurations = (
 				D01FEABB1485EBC200A37CA6 /* Debug */,
 				D01FEABC1485EBC200A37CA6 /* Release */,
+				D0F3D3EA15C9155B00A468C6 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -517,6 +559,7 @@
 			buildConfigurations = (
 				D01FEABE1485EBC200A37CA6 /* Debug */,
 				D01FEABF1485EBC200A37CA6 /* Release */,
+				D0F3D3EB15C9155B00A468C6 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -526,6 +569,7 @@
 			buildConfigurations = (
 				D01FEAC11485EBC200A37CA6 /* Debug */,
 				D01FEAC21485EBC200A37CA6 /* Release */,
+				D0F3D3EC15C9155B00A468C6 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

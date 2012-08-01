@@ -22,7 +22,7 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "NO"
+            buildForProfiling = "YES"
             buildForArchiving = "NO"
             buildForAnalyzing = "YES">
             <BuildableReference
@@ -69,7 +69,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
+      buildConfiguration = "Profile"
       debugDocumentVersioning = "YES">
    </ProfileAction>
    <AnalyzeAction
