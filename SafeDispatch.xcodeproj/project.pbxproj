@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D015D0CC15C91617005B4039 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D015D0CB15C91617005B4039 /* Foundation.framework */; };
+		D015D0DA15C91617005B4039 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEAAC1485EBC200A37CA6 /* SenTestingKit.framework */; };
+		D015D0DC15C91617005B4039 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D015D0DB15C91617005B4039 /* UIKit.framework */; };
+		D015D0DD15C91617005B4039 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D015D0CB15C91617005B4039 /* Foundation.framework */; };
+		D015D0E015C91617005B4039 /* libSafeDispatch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D015D0CA15C91617005B4039 /* libSafeDispatch.a */; };
+		D015D0F315C91712005B4039 /* SDGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EB8CA31487296000149538 /* SDGroup.m */; };
+		D015D0F415C91713005B4039 /* SDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D01FEADC1485ECE700A37CA6 /* SDQueue.m */; };
+		D015D0F515C91721005B4039 /* SDGroupTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EB8CAF14872F3400149538 /* SDGroupTests.m */; };
+		D015D0F615C91723005B4039 /* SDQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D01C79641486CBD200289F7A /* SDQueueTests.m */; };
 		D01C79651486CBD200289F7A /* SDQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D01C79641486CBD200289F7A /* SDQueueTests.m */; };
 		D01FEA971485EBC200A37CA6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D01FEA961485EBC200A37CA6 /* Cocoa.framework */; };
 		D01FEAA11485EBC200A37CA6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D01FEA9F1485EBC200A37CA6 /* InfoPlist.strings */; };
@@ -23,6 +32,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D015D0DE15C91617005B4039 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D01FEA891485EBC200A37CA6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D015D0C915C91617005B4039;
+			remoteInfo = SafeDispatch;
+		};
 		D01FEAAF1485EBC200A37CA6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D01FEA891485EBC200A37CA6 /* Project object */;
@@ -32,7 +48,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D015D0C815C91617005B4039 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		D015D0CA15C91617005B4039 /* libSafeDispatch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSafeDispatch.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D015D0CB15C91617005B4039 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D015D0D915C91617005B4039 /* iOS Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D015D0DB15C91617005B4039 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		D01C79631486CBD200289F7A /* SDQueueTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDQueueTests.h; sourceTree = "<group>"; };
 		D01C79641486CBD200289F7A /* SDQueueTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDQueueTests.m; sourceTree = "<group>"; };
 		D01FEA931485EBC200A37CA6 /* SafeDispatch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SafeDispatch.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,7 +76,7 @@
 		D01FEAA01485EBC200A37CA6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D01FEAA21485EBC200A37CA6 /* SafeDispatch-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SafeDispatch-Prefix.pch"; sourceTree = "<group>"; };
 		D01FEAA31485EBC200A37CA6 /* SafeDispatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SafeDispatch.h; sourceTree = "<group>"; };
-		D01FEAAB1485EBC200A37CA6 /* SafeDispatchTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeDispatchTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D01FEAAB1485EBC200A37CA6 /* SafeDispatchTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = SafeDispatchTests.octest; path = "OS X Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D01FEAAC1485EBC200A37CA6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		D01FEAB41485EBC200A37CA6 /* SafeDispatchTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SafeDispatchTests-Info.plist"; sourceTree = "<group>"; };
 		D01FEAB61485EBC200A37CA6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -72,6 +104,25 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		D015D0C715C91617005B4039 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D015D0CC15C91617005B4039 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D015D0D515C91617005B4039 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D015D0DA15C91617005B4039 /* SenTestingKit.framework in Frameworks */,
+				D015D0DC15C91617005B4039 /* UIKit.framework in Frameworks */,
+				D015D0DD15C91617005B4039 /* Foundation.framework in Frameworks */,
+				D015D0E015C91617005B4039 /* libSafeDispatch.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D01FEA8F1485EBC200A37CA6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -109,6 +160,8 @@
 			children = (
 				D01FEA931485EBC200A37CA6 /* SafeDispatch.framework */,
 				D01FEAAB1485EBC200A37CA6 /* SafeDispatchTests.octest */,
+				D015D0CA15C91617005B4039 /* libSafeDispatch.a */,
+				D015D0D915C91617005B4039 /* iOS Tests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -118,6 +171,8 @@
 			children = (
 				D01FEA961485EBC200A37CA6 /* Cocoa.framework */,
 				D01FEAAC1485EBC200A37CA6 /* SenTestingKit.framework */,
+				D015D0CB15C91617005B4039 /* Foundation.framework */,
+				D015D0DB15C91617005B4039 /* UIKit.framework */,
 				D01FEA981485EBC200A37CA6 /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -271,9 +326,45 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		D01FEA921485EBC200A37CA6 /* SafeDispatch */ = {
+		D015D0C915C91617005B4039 /* SafeDispatch (iOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D01FEABD1485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "SafeDispatch" */;
+			buildConfigurationList = D015D0F015C91617005B4039 /* Build configuration list for PBXNativeTarget "SafeDispatch (iOS)" */;
+			buildPhases = (
+				D015D0C615C91617005B4039 /* Sources */,
+				D015D0C715C91617005B4039 /* Frameworks */,
+				D015D0C815C91617005B4039 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SafeDispatch (iOS)";
+			productName = SafeDispatch;
+			productReference = D015D0CA15C91617005B4039 /* libSafeDispatch.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D015D0D815C91617005B4039 /* iOS Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D015D0F115C91617005B4039 /* Build configuration list for PBXNativeTarget "iOS Tests" */;
+			buildPhases = (
+				D015D0D415C91617005B4039 /* Sources */,
+				D015D0D515C91617005B4039 /* Frameworks */,
+				D015D0D615C91617005B4039 /* Resources */,
+				D015D0D715C91617005B4039 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D015D0DF15C91617005B4039 /* PBXTargetDependency */,
+			);
+			name = "iOS Tests";
+			productName = SafeDispatchTests;
+			productReference = D015D0D915C91617005B4039 /* iOS Tests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+		D01FEA921485EBC200A37CA6 /* SafeDispatch (OS X) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D01FEABD1485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "SafeDispatch (OS X)" */;
 			buildPhases = (
 				D01FEA8E1485EBC200A37CA6 /* Sources */,
 				D01FEA8F1485EBC200A37CA6 /* Frameworks */,
@@ -284,14 +375,14 @@
 			);
 			dependencies = (
 			);
-			name = SafeDispatch;
+			name = "SafeDispatch (OS X)";
 			productName = SafeDispatch;
 			productReference = D01FEA931485EBC200A37CA6 /* SafeDispatch.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		D01FEAAA1485EBC200A37CA6 /* SafeDispatchTests */ = {
+		D01FEAAA1485EBC200A37CA6 /* OS X Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D01FEAC01485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "SafeDispatchTests" */;
+			buildConfigurationList = D01FEAC01485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "OS X Tests" */;
 			buildPhases = (
 				D01FEAA61485EBC200A37CA6 /* Sources */,
 				D01FEAA71485EBC200A37CA6 /* Frameworks */,
@@ -303,7 +394,7 @@
 			dependencies = (
 				D01FEAB01485EBC200A37CA6 /* PBXTargetDependency */,
 			);
-			name = SafeDispatchTests;
+			name = "OS X Tests";
 			productName = SafeDispatchTests;
 			productReference = D01FEAAB1485EBC200A37CA6 /* SafeDispatchTests.octest */;
 			productType = "com.apple.product-type.bundle";
@@ -328,13 +419,22 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D01FEA921485EBC200A37CA6 /* SafeDispatch */,
-				D01FEAAA1485EBC200A37CA6 /* SafeDispatchTests */,
+				D01FEA921485EBC200A37CA6 /* SafeDispatch (OS X) */,
+				D015D0C915C91617005B4039 /* SafeDispatch (iOS) */,
+				D01FEAAA1485EBC200A37CA6 /* OS X Tests */,
+				D015D0D815C91617005B4039 /* iOS Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		D015D0D615C91617005B4039 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D01FEA911485EBC200A37CA6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -354,6 +454,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		D015D0D715C91617005B4039 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
 		D01FEAA91485EBC200A37CA6 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -370,6 +483,24 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		D015D0C615C91617005B4039 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D015D0F315C91712005B4039 /* SDGroup.m in Sources */,
+				D015D0F415C91713005B4039 /* SDQueue.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D015D0D415C91617005B4039 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D015D0F515C91721005B4039 /* SDGroupTests.m in Sources */,
+				D015D0F615C91723005B4039 /* SDQueueTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D01FEA8E1485EBC200A37CA6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -391,9 +522,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		D015D0DF15C91617005B4039 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D015D0C915C91617005B4039 /* SafeDispatch (iOS) */;
+			targetProxy = D015D0DE15C91617005B4039 /* PBXContainerItemProxy */;
+		};
 		D01FEAB01485EBC200A37CA6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D01FEA921485EBC200A37CA6 /* SafeDispatch */;
+			target = D01FEA921485EBC200A37CA6 /* SafeDispatch (OS X) */;
 			targetProxy = D01FEAAF1485EBC200A37CA6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -418,6 +554,94 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		D015D0EA15C91617005B4039 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3E215C914FA00A468C6 /* iOS-StaticLibrary.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				DSTROOT = /tmp/SafeDispatch.dst;
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = SafeDispatch;
+			};
+			name = Debug;
+		};
+		D015D0EB15C91617005B4039 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3E215C914FA00A468C6 /* iOS-StaticLibrary.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				DSTROOT = /tmp/SafeDispatch.dst;
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = SafeDispatch;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D015D0EC15C91617005B4039 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3E215C914FA00A468C6 /* iOS-StaticLibrary.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				DSTROOT = /tmp/SafeDispatch.dst;
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = SafeDispatch;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		D015D0ED15C91617005B4039 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3E015C914FA00A468C6 /* iOS-Application.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				INFOPLIST_FILE = "SafeDispatchTests/SafeDispatchTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		D015D0EE15C91617005B4039 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3E015C914FA00A468C6 /* iOS-Application.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				INFOPLIST_FILE = "SafeDispatchTests/SafeDispatchTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+		D015D0EF15C91617005B4039 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0F3D3E015C914FA00A468C6 /* iOS-Application.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				INFOPLIST_FILE = "SafeDispatchTests/SafeDispatchTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Profile;
+		};
 		D01FEABB1485EBC200A37CA6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D0F3D3D915C914FA00A468C6 /* Debug.xcconfig */;
@@ -425,6 +649,7 @@
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 			};
@@ -437,6 +662,7 @@
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 			};
@@ -450,7 +676,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "SafeDispatch/SafeDispatch-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SafeDispatch;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -463,7 +689,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "SafeDispatch/SafeDispatch-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SafeDispatch;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -499,6 +725,7 @@
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREFIX_HEADER = "SafeDispatch/SafeDispatch-Prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 			};
@@ -512,7 +739,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "SafeDispatch/SafeDispatch-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SafeDispatch;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Profile;
@@ -532,6 +759,26 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		D015D0F015C91617005B4039 /* Build configuration list for PBXNativeTarget "SafeDispatch (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D015D0EA15C91617005B4039 /* Debug */,
+				D015D0EB15C91617005B4039 /* Release */,
+				D015D0EC15C91617005B4039 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D015D0F115C91617005B4039 /* Build configuration list for PBXNativeTarget "iOS Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D015D0ED15C91617005B4039 /* Debug */,
+				D015D0EE15C91617005B4039 /* Release */,
+				D015D0EF15C91617005B4039 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D01FEA8C1485EBC200A37CA6 /* Build configuration list for PBXProject "SafeDispatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -542,7 +789,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D01FEABD1485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "SafeDispatch" */ = {
+		D01FEABD1485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "SafeDispatch (OS X)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D01FEABE1485EBC200A37CA6 /* Debug */,
@@ -552,7 +799,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D01FEAC01485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "SafeDispatchTests" */ = {
+		D01FEAC01485EBC200A37CA6 /* Build configuration list for PBXNativeTarget "OS X Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D01FEAC11485EBC200A37CA6 /* Debug */,
