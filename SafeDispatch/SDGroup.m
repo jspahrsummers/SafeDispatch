@@ -48,6 +48,9 @@
 - (void)runAsynchronously:(dispatch_block_t)block; {
 	dispatch_block_t copiedBlock = [block copy];
 
+	// instead of using dispatch_group_async(), keep track of the block's
+	// association with the group manually, so that we can use SDQueue directly
+	// (and thus gain all its benefits)
 	dispatch_block_t groupBlock = [^{
 		copiedBlock();
 		dispatch_group_leave(_dispatchGroup);
@@ -63,6 +66,8 @@
 	dispatch_queue_t initialQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
 	dispatch_group_notify(_dispatchGroup, initialQueue, ^{
+		// as with our -runAsynchronously: method, we want to benefit from
+		// SDQueue, so hop onto it instead
 		[self.destinationQueue runAsynchronously:block];
 	});
 }

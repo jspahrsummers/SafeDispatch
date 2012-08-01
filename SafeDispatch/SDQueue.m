@@ -47,12 +47,16 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 #pragma mark Properties
 
 - (BOOL)isCurrentQueue {
+	// if we're running on the main thread, the main queue is assumed to be
+	// current (even if we're nominally on another queue)
 	if (_dispatchQueue == dispatch_get_main_queue() && [NSThread isMainThread])
 		return YES;
 
 	if (dispatch_get_current_queue() == _dispatchQueue)
 		return YES;
 
+	// see if this queue is anywhere in the call stack (that we've tracked
+	// using SDQueue, anyways)
 	sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
 	while (stack) {
 		if (stack->queue == _dispatchQueue)
@@ -175,6 +179,8 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 	__block __weak dispatch_block_t recursiveJumpBlock = NULL;
 	__block NSUInteger currentIndex = 0;
 
+	// this block will be invoked recursively, to synchronously jump to each
+	// successive queue, so that they're all blocked while we execute the given block
 	dispatch_block_t jumpBlock = [^{
 		if (currentIndex >= count - 1) {
 			block();
@@ -188,6 +194,7 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 
 	recursiveJumpBlock = jumpBlock;
 
+	// start on the first queue asynchronously (so we return immediately)
 	SDQueue *firstQueue = [sortedQueues objectAtIndex:0];
 	[firstQueue runBarrierAsynchronously:jumpBlock];
 }
@@ -199,6 +206,8 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 	__block __weak dispatch_block_t recursiveJumpBlock = NULL;
 	__block NSUInteger nextIndex = 0;
 
+	// this block will be invoked recursively, to synchronously jump to each
+	// successive queue, so that they're all blocked while we execute the given block
 	dispatch_block_t jumpBlock = ^{
 		if (nextIndex >= count) {
 			block();
@@ -211,6 +220,10 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 	};
 
 	recursiveJumpBlock = jumpBlock;
+
+	// unlike the asynchronous case, we can start the recursion directly, with
+	// no copying to the heap, because our current stack frame will be reachable
+	// all the way down
 	jumpBlock();
 }
 
@@ -288,6 +301,10 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 
 	dispatch_block_t copiedBlock = [block copy];
 
+	// unlike the synchronous case, we don't set up a queue stack, because the
+	// very nature of asynchronous dispatch means that this will be the first
+	// (current) queue on any stack (and the reference to it will be preserved
+	// if a block is dispatched synchronously later)
 	return [^{
 		NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
 
