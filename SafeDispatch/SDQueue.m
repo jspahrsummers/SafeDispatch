@@ -141,9 +141,9 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 
 - (void)dealloc {
 	if (self.private) {
-		// attempt to flush the queue to avoid a crash from releasing it while it
-		// still has blocks
-		dispatch_barrier_sync(_dispatchQueue, ^{});
+		// asynchronously flush the queue, to avoid any crashes from releasing
+		// it while it still has blocks
+		dispatch_barrier_async(_dispatchQueue, ^{});
 	}
 
 	dispatch_release(_dispatchQueue);
