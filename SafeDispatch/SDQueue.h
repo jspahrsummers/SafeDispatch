@@ -47,29 +47,9 @@
 + (SDQueue *)mainQueue;
 
 /**
- * Returns an `SDQueue` wrapping the given GCD queue.
- *
- * @param queue The dispatch queue to wrap.
- * @param concurrent Whether this queue is concurrent.
- * @param private Whether this queue is private (custom).
- */
-+ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private;
-
-/**
  * Initializes a serial GCD queue of default priority.
  */
 - (id)init;
-
-/**
- * Initializes the receiver to wrap around the given GCD queue.
- *
- * This is the designated initializer for this class.
- *
- * @param queue The dispatch queue to wrap.
- * @param concurrent Whether this queue is concurrent.
- * @param private Whether this queue is private (custom).
- */
-- (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private;
 
 /**
  * Initializes a serial GCD queue of the given priority.

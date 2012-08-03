@@ -19,12 +19,32 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 @interface SDQueue ()
 @property (nonatomic, readonly) dispatch_queue_t dispatchQueue;
 
+/*
+ * Returns an `SDQueue` wrapping the given GCD queue.
+ *
+ * @param queue The dispatch queue to wrap.
+ * @param concurrent Whether this queue is concurrent.
+ * @param private Whether this queue is private (custom).
+ */
++ (SDQueue *)queueWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private;
+
+/*
+ * Initializes the receiver to wrap around the given GCD queue.
+ *
+ * This is the designated initializer for this class.
+ *
+ * @param queue The dispatch queue to wrap.
+ * @param concurrent Whether this queue is concurrent.
+ * @param private Whether this queue is private (custom).
+ */
+- (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private;
+
 - (dispatch_block_t)asynchronousTrampolineWithBlock:(dispatch_block_t)block;
 - (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withSynchronousBlock:(dispatch_block_t)block;
 @end
 
 /*
- * Sorting function for use with -[NSArray sortedArrayUsingFunction:context:].
+ * Sorting function for use with `-[NSArray sortedArrayUsingFunction:context:]`.
  *
  * This applies a deterministic total ordering to SDQueues based on their
  * underlying GCD queues, and so is used to implement multi-queue
