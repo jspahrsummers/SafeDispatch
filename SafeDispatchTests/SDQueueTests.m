@@ -185,4 +185,22 @@
 	}
 }
 
+- (void)testTargetedQueueDeadlock {
+	SDQueue *firstQueue = [[SDQueue alloc] initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT concurrent:NO label:@"1"];
+	SDQueue *secondQueue = [[SDQueue alloc] initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT concurrent:NO label:@"2"];
+	firstQueue.targetQueue = secondQueue;
+
+	__block BOOL finished = NO;
+
+	[firstQueue runSynchronously:^{
+		[secondQueue runSynchronously:^{
+			[firstQueue runSynchronously:^{
+				finished = YES;
+			}];
+		}];
+	}];
+
+	STAssertTrue(finished, @"");
+}
+
 @end
