@@ -16,8 +16,14 @@ typedef struct sd_dispatch_queue_stack {
 // used with dispatch_set_queue_specific()
 static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
 
-@interface SDQueue ()
-@property (nonatomic, readonly) dispatch_queue_t dispatchQueue;
+@interface SDQueue () {
+// public for the compareQueues() function
+@public
+	/*
+	 * The underlying GCD queue.
+	 */
+	dispatch_queue_t _dispatchQueue;
+}
 
 /*
  * Returns an `SDQueue` wrapping the given GCD queue.
@@ -51,8 +57,8 @@ static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
  * synchronization (where an arbitrary ordering could easily lead to deadlocks).
  */
 static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context) {
-	dispatch_queue_t dispatchA = queueA.dispatchQueue;
-	dispatch_queue_t dispatchB = queueB.dispatchQueue;
+	dispatch_queue_t dispatchA = queueA->_dispatchQueue;
+	dispatch_queue_t dispatchB = queueB->_dispatchQueue;
 
 	if (dispatchA < dispatchB)
 		return NSOrderedAscending;
@@ -177,7 +183,7 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 #pragma mark NSObject overrides
 
 - (NSString *)description {
-	const char *label = dispatch_queue_get_label(self.dispatchQueue);
+	const char *label = dispatch_queue_get_label(_dispatchQueue);
 	return [NSString stringWithFormat:@"<%@: %p>{ label = %s }", self.class, self, label];
 }
 
@@ -192,7 +198,7 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 	if (![queue isKindOfClass:[SDQueue class]])
 		return NO;
 
-	return self.dispatchQueue == queue.dispatchQueue;
+	return _dispatchQueue == queue->_dispatchQueue;
 }
 
 #pragma mark Dispatch
