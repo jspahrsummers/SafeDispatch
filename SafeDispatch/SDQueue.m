@@ -7,6 +7,7 @@
 //
 
 #import "SDQueue.h"
+#import <libkern/OSAtomic.h>
 
 typedef struct sd_dispatch_queue_stack {
 	dispatch_queue_t queue;
@@ -15,6 +16,7 @@ typedef struct sd_dispatch_queue_stack {
 
 // used with dispatch_set_queue_specific()
 static const void * const SDDispatchQueueStackKey = &SDDispatchQueueStackKey;
+static const void * const SDTargetQueueKey = &SDTargetQueueKey;
 
 @interface SDQueue () {
 // public for the compareQueues() function
@@ -23,6 +25,20 @@ static const void * const SDDispatchQueueStackKey = &SDDispatchQueueStackKey;
 	 * The underlying GCD queue.
 	 */
 	dispatch_queue_t _dispatchQueue;
+
+	/*
+	 * The receiver's target queue should not be changed while this value is
+	 * greater than zero.
+	 *
+	 * This value should only be read while the <_retargetingCondition> is held.
+	 */
+	NSUInteger _retargetingSuspensionCount;
+
+	/*
+	 * A lock used to synchronize the <_retargetingSuspensionCount>, or `nil` if
+	 * the receiver is a global queue.
+	 */
+	NSCondition *_retargetingCondition;
 }
 
 /*
@@ -45,8 +61,11 @@ static const void * const SDDispatchQueueStackKey = &SDDispatchQueueStackKey;
  */
 - (id)initWithGCDQueue:(dispatch_queue_t)queue concurrent:(BOOL)concurrent private:(BOOL)private;
 
-- (dispatch_block_t)asynchronousTrampolineWithBlock:(dispatch_block_t)block;
-- (void)callDispatchFunction:(void (*)(dispatch_queue_t, dispatch_block_t))function withSynchronousBlock:(dispatch_block_t)block;
+/*
+ * Enumerates the receiver, followed by any queue that the receiver targets,
+ * followed by any queue that queue targets, etc.
+ */
+- (void)enumerateTargetQueuesUsingBlock:(void (^)(SDQueue *queue, BOOL *stop))block;
 @end
 
 /*
@@ -68,30 +87,77 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 		return NSOrderedSame;
 }
 
+/*
+ * Returns whether `dispatchQueueA` is or targets `dispatchQueueB`, directly or indirectly.
+ */
+static BOOL queueTargetsQueue (dispatch_queue_t dispatchQueueA, dispatch_queue_t dispatchQueueB) {
+	if (dispatchQueueA == dispatchQueueB) {
+		return YES;
+	}
+
+	SDQueue *queue = (__bridge id)dispatch_queue_get_specific(dispatchQueueA, SDTargetQueueKey);
+	if (!queue) {
+		return NO;
+	}
+
+	return queueTargetsQueue(queue->_dispatchQueue, dispatchQueueB);
+}
+
+/*
+ * Returns whether either of the given queues targets the other (and is thus
+ * equivalent for call stack purposes).
+ */
+static BOOL queuesAreEquivalent (dispatch_queue_t dispatchQueueA, dispatch_queue_t dispatchQueueB) {
+	// seems like there's a more efficient way to do this
+	return queueTargetsQueue(dispatchQueueA, dispatchQueueB) || queueTargetsQueue(dispatchQueueB, dispatchQueueA);
+}
+
+// Destructor stub for dispatch_queue_set_specific()
+static void SDQueueRelease (void *queue) {
+	// although CFRelease() will crash if given NULL, dispatch_queue_set_specific()
+	// will never invoke it if the queue is nil
+	CFRelease(queue);
+}
+
 @implementation SDQueue
 
 #pragma mark Properties
 
-- (BOOL)isCurrentQueue {
-	// if we're running on the main thread, the main queue is assumed to be
-	// current (even if we're nominally on another queue)
-	if (_dispatchQueue == dispatch_get_main_queue() && [NSThread isMainThread])
-		return YES;
+- (SDQueue *)targetQueue {
+	return (__bridge id)dispatch_queue_get_specific(_dispatchQueue, SDTargetQueueKey);
+}
 
-	if (dispatch_get_current_queue() == _dispatchQueue)
-		return YES;
+- (void)setTargetQueue:(SDQueue *)queue {
+	NSAssert(self.private, @"Global queue %@ cannot be retargeted", self);
 
-	// see if this queue is anywhere in the call stack (that we've tracked
-	// using SDQueue, anyways)
-	sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
-	while (stack) {
-		if (stack->queue == _dispatchQueue)
-			return YES;
+	// set up an intermediate queue which will target the correct queue
+	//
+	// the use of an intermediate queue allows us to atomically swap in the new
+	// target and update the target queue reference simultaneously
+	dispatch_queue_attr_t attribute = (self.concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
+	dispatch_queue_t intermediateQueue = dispatch_queue_create("org.jspahrsummers.SafeDispatch.intermediateTargetQueue", attribute);
 
-		stack = stack->next;
-	}
+	dispatch_suspend(intermediateQueue);
+	dispatch_set_target_queue(intermediateQueue, (queue ? queue->_dispatchQueue : NULL));
 
-	return NO;
+	// first order of business on the new queue will be to update the target
+	// queue reference
+	dispatch_barrier_async(intermediateQueue, ^{
+		dispatch_queue_set_specific(_dispatchQueue, SDTargetQueueKey, (__bridge_retained void *)queue, &SDQueueRelease);
+
+		// signal any other thread that might be waiting to retarget
+		[_retargetingCondition signal];
+		[_retargetingCondition unlock];
+	});
+
+	[_retargetingCondition lock];
+	while (_retargetingSuspensionCount > 0)
+		[_retargetingCondition wait];
+
+	dispatch_set_target_queue(_dispatchQueue, intermediateQueue);
+
+	dispatch_resume(intermediateQueue);
+	dispatch_release(intermediateQueue);
 }
 
 #pragma mark Lifecycle
@@ -143,6 +209,9 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 	dispatch_retain(queue);
 	_dispatchQueue = queue;
 
+	if (private)
+		_retargetingCondition = [[NSCondition alloc] init];
+
 	_concurrent = concurrent;
 	_private = private;
 
@@ -161,10 +230,16 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 	dispatch_queue_attr_t attribute = (concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
 
 	dispatch_queue_t queue = dispatch_queue_create(label.UTF8String, attribute);
-	dispatch_set_target_queue(queue, dispatch_get_global_queue(priority, 0));
-
 	self = [self initWithGCDQueue:queue concurrent:concurrent private:YES];
 	dispatch_release(queue);
+
+	SDQueue *globalQueue = [SDQueue concurrentGlobalQueueWithPriority:priority];
+	if (self == nil || globalQueue == nil) return nil;
+
+	// we don't need all the craziness of -setTargetQueue: because
+	// synchronization is not necessary while initializing
+	dispatch_set_target_queue(_dispatchQueue, globalQueue->_dispatchQueue);
+	dispatch_queue_set_specific(_dispatchQueue, SDTargetQueueKey, (__bridge_retained void *)globalQueue, &SDQueueRelease);
 
 	return self;
 }
@@ -184,7 +259,11 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 
 - (NSString *)description {
 	const char *label = dispatch_queue_get_label(_dispatchQueue);
-	return [NSString stringWithFormat:@"<%@: %p>{ label = %s }", self.class, self, label];
+
+	SDQueue *target = self.targetQueue;
+	const char *targetLabel = (target ? dispatch_queue_get_label(target->_dispatchQueue) : NULL);
+
+	return [NSString stringWithFormat:@"<%@: %p>{ label = %s, target = %s }", self.class, self, label, targetLabel];
 }
 
 - (NSUInteger)hash {
@@ -201,14 +280,91 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 	return _dispatchQueue == queue->_dispatchQueue;
 }
 
+#pragma mark Targeting
+
+- (void)suspendRetargeting {
+	if (_retargetingCondition) {
+		[_retargetingCondition lock];
+		_retargetingSuspensionCount++;
+		[_retargetingCondition unlock];
+	}
+
+	[self.targetQueue suspendRetargeting];
+}
+
+- (void)resumeRetargeting {
+	// resume from the inside out (opposite order of suspension)
+	[self.targetQueue resumeRetargeting];
+
+	if (_retargetingCondition) {
+		[_retargetingCondition lock];
+		NSAssert(_retargetingSuspensionCount > 0, @"Unbalanced decrement of _retargetingSuspensionCount on %@", self);
+
+		_retargetingSuspensionCount--;
+		[_retargetingCondition signal];
+		[_retargetingCondition unlock];
+	}
+}
+
+- (void)enumerateTargetQueuesUsingBlock:(void (^)(SDQueue *queue, BOOL *stop))block {
+	SDQueue *queue = self;
+	do {
+		BOOL stop = NO;
+		block(queue, &stop);
+		
+		if (stop) {
+			return;
+		}
+
+		queue = queue.targetQueue;
+	} while (queue);
+}
+
+- (BOOL)targetsGCDQueue:(dispatch_queue_t)GCDQueue {
+	__block BOOL result = NO;
+
+	[self enumerateTargetQueuesUsingBlock:^(SDQueue *queue, BOOL *stop){
+		if (queue->_dispatchQueue == GCDQueue) {
+			result = YES;
+			*stop = YES;
+		}
+	}];
+
+	return result;
+}
+
+- (BOOL)isCurrentQueue {
+	// if we're running on the main thread, the main queue is assumed to be
+	// current (even if we're nominally on another queue)
+	if ([NSThread isMainThread] && [self targetsGCDQueue:dispatch_get_main_queue()])
+		return YES;
+
+	if (queuesAreEquivalent(dispatch_get_current_queue(), _dispatchQueue))
+		return YES;
+
+	// see if this queue is anywhere in the call stack (that we've tracked
+	// using SDQueue, anyways)
+	sd_dispatch_queue_stack *stack = dispatch_get_specific(SDDispatchQueueStackKey);
+	while (stack) {
+		if (queuesAreEquivalent(stack->queue, _dispatchQueue))
+			return YES;
+
+		stack = stack->next;
+	}
+
+	return NO;
+}
+
 #pragma mark Dispatch
 
 - (void)withGCDQueue:(void (^)(dispatch_queue_t queue, BOOL isCurrentQueue))block {
 	dispatch_retain(_dispatchQueue);
+	[self suspendRetargeting];
 
 	@try {
 		block(_dispatchQueue, [self isCurrentQueue]);
 	} @finally {
+		[self resumeRetargeting];
 		dispatch_release(_dispatchQueue);
 	}
 }
