@@ -176,6 +176,11 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 
 #pragma mark NSObject overrides
 
+- (NSString *)description {
+	const char *label = dispatch_queue_get_label(self.dispatchQueue);
+	return [NSString stringWithFormat:@"<%@: %p>{ label = %s }", self.class, self, label];
+}
+
 - (NSUInteger)hash {
 	// shift off some low bits that will be very similar
 	// (this is still a really crappy hash, but SDQueues probably shouldn't be
