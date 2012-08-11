@@ -98,21 +98,30 @@
 @property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
 
 /**
- * Whether the calling code is directly or indirectly running on this queue.
- *
- * For example, if the calling code is executing from a block on one queue, and
- * that block was synchronously dispatched from another queue, both of those two
- * queues would return `YES` for this property.
- */
-@property (readonly, getter = isCurrentQueue) BOOL currentQueue;
-
-/**
  * Whether this queue is a private queue (`YES`) or one created by the system
  * (`NO`).
  *
  * This will always be `NO` on a queue object retrieved with <currentQueue>.
  */
 @property (nonatomic, readonly, getter = isPrivate) BOOL private;
+
+/**
+ * The queue responsible for processing blocks dispatched to the receiver, or
+ * `nil` if the receiver is not a private queue.
+ *
+ * Setting this property will synchronously wait for the termination of any
+ * <withGCDQueue:> invocations, at which point an asynchronous barrier block
+ * will be queued on the receiver. This barrier block is what will actually
+ * switch the target queue and update the property.
+ *
+ * Because the setter for this property is synchronous, it will deadlock if the
+ * calling code is executing on the receiver (directly or indirectly). If this
+ * may be a possibility, consider setting this property in an asynchronous block
+ * dispatched to a global queue.
+ *
+ * It is an error to set this property on a queue which is not <private>.
+ */
+@property (strong) SDQueue *targetQueue;
 
 /**
  * @name Adding Behavior to Dispatched Blocks
@@ -187,6 +196,21 @@
  * `block` will be propagated to the caller of this method.
  */
 - (void)runSynchronously:(dispatch_block_t)block;
+
+/**
+ * Invokes the given block with the GCD queue underlying the receiver, as well
+ * as a flag indicating whether the queue is present somewhere in the current
+ * call stack. The flag is guaranteed to remain valid for the duration of the
+ * block.
+ *
+ * This method can be used to use the underlying GCD queue in a comparatively
+ * safe way, with the following caveats:
+ *
+ *	- The queue reference must not escape `block`.
+ *	- The queue must not have a new target set with
+ *	`dispatch_set_target_queue()`.
+ */
+- (void)withGCDQueue:(void (^)(dispatch_queue_t queue, BOOL isCurrentQueue))block;
 
 /**
  * @name Synchronization
