@@ -112,7 +112,9 @@
  * Setting this property will synchronously wait for the termination of any
  * <withGCDQueue:> invocations, at which point an asynchronous barrier block
  * will be queued on the receiver. This barrier block is what will actually
- * switch the target queue and update the property.
+ * switch the target queue and update the property. The order in which the block
+ * executes, relative to other threads also trying to update the target queue,
+ * is unspecified.
  *
  * Because the setter for this property is synchronous, it will deadlock if the
  * calling code is executing on the receiver (directly or indirectly). If this
