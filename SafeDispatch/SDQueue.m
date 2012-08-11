@@ -203,6 +203,16 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 
 #pragma mark Dispatch
 
+- (void)withGCDQueue:(void (^)(dispatch_queue_t queue, BOOL isCurrentQueue))block {
+	dispatch_retain(_dispatchQueue);
+
+	@try {
+		block(_dispatchQueue, [self isCurrentQueue]);
+	} @finally {
+		dispatch_release(_dispatchQueue);
+	}
+}
+
 + (void)synchronizeQueues:(NSArray *)queues runAsynchronously:(dispatch_block_t)block; {
 	NSArray *sortedQueues = [queues sortedArrayUsingFunction:&compareQueues context:NULL];
 	NSUInteger count = sortedQueues.count;
@@ -265,59 +275,60 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 	dispatch_block_t prologue = self.prologueBlock;
 	dispatch_block_t epilogue = self.epilogueBlock;
 
-	BOOL isCurrentQueue = self.currentQueue;
-	dispatch_queue_t realCurrentQueue = dispatch_get_current_queue();
-
 	__block NSException *thrownException = nil;
 
-	dispatch_block_t trampoline = ^{
-		sd_dispatch_queue_stack *oldStack = NULL;
+	[self withGCDQueue:^(dispatch_queue_t queue, BOOL isCurrentQueue){
+		dispatch_queue_t realCurrentQueue = dispatch_get_current_queue();
 
-		// if we're just now jumping to our dispatch queue, we need to copy over
-		// the call stack of queues, so that -isCurrentQueue works properly for
-		// all of those queues
-		if (!isCurrentQueue) {
-			// get the stack of queues from the dispatch queue we were just on,
-			// and add it to our stack
-			sd_dispatch_queue_stack head = {
-				.queue = realCurrentQueue,
-				.next = dispatch_queue_get_specific(realCurrentQueue, SDDispatchQueueStackKey)
-			};
-			
-			// then save that as the stack of our current queue (preserving the
-			// original value, to be restored once this block is popped)
-			oldStack = dispatch_get_specific(SDDispatchQueueStackKey);
+		dispatch_block_t trampoline = ^{
+			sd_dispatch_queue_stack *oldStack = NULL;
 
-			dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, &head, NULL);
-		}
+			// if we're just now jumping to our dispatch queue, we need to copy over
+			// the call stack of queues, so that -isCurrentQueue works properly for
+			// all of those queues
+			if (!isCurrentQueue) {
+				// get the stack of queues from the dispatch queue we were just on,
+				// and add it to our stack
+				sd_dispatch_queue_stack head = {
+					.queue = realCurrentQueue,
+					.next = dispatch_queue_get_specific(realCurrentQueue, SDDispatchQueueStackKey)
+				};
+				
+				// then save that as the stack of our current queue (preserving the
+				// original value, to be restored once this block is popped)
+				oldStack = dispatch_get_specific(SDDispatchQueueStackKey);
 
-		@try {
-			// although this will catch exceptions coming from the prologue or
-			// epilogue blocks, we don't really support it (since the
-			// asynchronous case would have different behavior)
-			if (prologue)
-				prologue();
+				dispatch_queue_set_specific(queue, SDDispatchQueueStackKey, &head, NULL);
+			}
 
-			block();
+			@try {
+				// although this will catch exceptions coming from the prologue or
+				// epilogue blocks, we don't really support it (since the
+				// asynchronous case would have different behavior)
+				if (prologue)
+					prologue();
 
-			if (epilogue)
-				epilogue();
-		} @catch (NSException *ex) {
-			// exceptions aren't allowed to escape a dispatch block, so catch it
-			// and re-throw once we're off the queue
-			thrownException = ex;
-		}
+				block();
 
-		if (!isCurrentQueue) {
-			// restore the original stack
-			dispatch_queue_set_specific(_dispatchQueue, SDDispatchQueueStackKey, oldStack, NULL);
-		}
-	};
+				if (epilogue)
+					epilogue();
+			} @catch (NSException *ex) {
+				// exceptions aren't allowed to escape a dispatch block, so catch it
+				// and re-throw once we're off the queue
+				thrownException = ex;
+			}
 
-	if (isCurrentQueue)
-		trampoline();
-	else
-		function(_dispatchQueue, trampoline);
+			if (!isCurrentQueue) {
+				// restore the original stack
+				dispatch_queue_set_specific(queue, SDDispatchQueueStackKey, oldStack, NULL);
+			}
+		};
+
+		if (isCurrentQueue)
+			trampoline();
+		else
+			function(queue, trampoline);
+	}];
 	
 	if (thrownException) {
 		@throw thrownException;
@@ -372,11 +383,13 @@ static NSInteger compareQueues (SDQueue *queueA, SDQueue *queueB, void *context)
 }
 
 - (void)runAsynchronouslyIfNotCurrent:(dispatch_block_t)block; {
-	if (self.currentQueue) {
-		[self runSynchronously:block];
-	} else {
-		[self runAsynchronously:block];
-	}
+	[self withGCDQueue:^(dispatch_queue_t queue, BOOL isCurrentQueue){
+		if (isCurrentQueue) {
+			[self runSynchronously:block];
+		} else {
+			[self runAsynchronously:block];
+		}
+	}];
 }
 
 - (void)runBarrierAsynchronously:(dispatch_block_t)block; {

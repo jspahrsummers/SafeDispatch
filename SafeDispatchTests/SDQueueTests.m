@@ -12,6 +12,17 @@
 
 @implementation SDQueueTests
 
+- (void)verifyQueueIsCurrent:(SDQueue *)queue {
+	__block BOOL executed = NO;
+	[queue withGCDQueue:^(dispatch_queue_t dispatchQueue, BOOL isCurrentQueue){
+		STAssertTrue(dispatchQueue != NULL, @"");
+		STAssertTrue(isCurrentQueue, @"");
+		executed = YES;
+	}];
+
+	STAssertTrue(executed, @"");
+}
+
 - (void)testInitialization {
 	dispatch_queue_priority_t priorities[] = {
 		DISPATCH_QUEUE_PRIORITY_HIGH,
@@ -126,21 +137,21 @@
 	STAssertTrue(epilogueDone, @"");
 }
 
-- (void)testCurrentQueue {
+- (void)testWithGCDQueue {
 	SDQueue *unitTestQueue = [SDQueue currentQueue];
 	SDQueue *firstQueue = [[SDQueue alloc] init];
 	SDQueue *secondQueue = [[SDQueue alloc] init];
 
-	STAssertTrue(unitTestQueue.currentQueue, @"");
+	[self verifyQueueIsCurrent:unitTestQueue];
 
 	[firstQueue runSynchronously:^{
-		STAssertTrue(unitTestQueue.currentQueue, @"");
-		STAssertTrue(firstQueue.currentQueue, @"");
+		[self verifyQueueIsCurrent:unitTestQueue];
+		[self verifyQueueIsCurrent:firstQueue];
 		
 		[secondQueue runSynchronously:^{
-			STAssertTrue(unitTestQueue.currentQueue, @"");
-			STAssertTrue(firstQueue.currentQueue, @"");
-			STAssertTrue(secondQueue.currentQueue, @"");
+			[self verifyQueueIsCurrent:unitTestQueue];
+			[self verifyQueueIsCurrent:firstQueue];
+			[self verifyQueueIsCurrent:secondQueue];
 		}];
 	}];
 }
@@ -150,7 +161,7 @@
 
 	SDQueue *queue = [[SDQueue alloc] init];
 	[queue afterDelay:0.1 runAsynchronously:^{
-		STAssertTrue(queue.currentQueue, @"");
+		[self verifyQueueIsCurrent:queue];
 
 		finished = YES;
 		OSMemoryBarrier();

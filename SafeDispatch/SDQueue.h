@@ -98,15 +98,6 @@
 @property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
 
 /**
- * Whether the calling code is directly or indirectly running on this queue.
- *
- * For example, if the calling code is executing from a block on one queue, and
- * that block was synchronously dispatched from another queue, both of those two
- * queues would return `YES` for this property.
- */
-@property (readonly, getter = isCurrentQueue) BOOL currentQueue;
-
-/**
  * Whether this queue is a private queue (`YES`) or one created by the system
  * (`NO`).
  *
@@ -187,6 +178,21 @@
  * `block` will be propagated to the caller of this method.
  */
 - (void)runSynchronously:(dispatch_block_t)block;
+
+/**
+ * Invokes the given block with the GCD queue underlying the receiver, as well
+ * as a flag indicating whether the queue is present somewhere in the current
+ * call stack. The flag is guaranteed to remain valid for the duration of the
+ * block.
+ *
+ * This method can be used to use the underlying GCD queue in a comparatively
+ * safe way, with the following caveats:
+ *
+ *	- The queue reference must not escape `block`.
+ *	- The queue must not have a new target set with
+ *	`dispatch_set_target_queue()`.
+ */
+- (void)withGCDQueue:(void (^)(dispatch_queue_t queue, BOOL isCurrentQueue))block;
 
 /**
  * @name Synchronization
