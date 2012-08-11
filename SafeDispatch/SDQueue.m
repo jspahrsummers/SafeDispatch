@@ -14,7 +14,7 @@ typedef struct sd_dispatch_queue_stack {
 } sd_dispatch_queue_stack;
 
 // used with dispatch_set_queue_specific()
-static const void * const SDDispatchQueueStackKey = "SDDispatchQueueStack";
+static const void * const SDDispatchQueueStackKey = &SDDispatchQueueStackKey;
 
 @interface SDQueue () {
 // public for the compareQueues() function
