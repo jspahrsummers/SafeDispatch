@@ -39,6 +39,14 @@ static const void * const SDTargetQueueKey = &SDTargetQueueKey;
 	 * the receiver is a global queue.
 	 */
 	NSCondition *_retargetingCondition;
+
+	/*
+	 * A serial queue to asynchronously execute <targetQueue> updates in order.
+	 *
+	 * This queue is not used for synchronization. Use <_retargetingCondition>
+	 * instead.
+	 */
+	dispatch_queue_t _retargetingQueue;
 }
 
 /*
@@ -130,34 +138,36 @@ static void SDQueueRelease (void *queue) {
 - (void)setTargetQueue:(SDQueue *)queue {
 	NSAssert(self.private, @"Global queue %@ cannot be retargeted", self);
 
-	// set up an intermediate queue which will target the correct queue
-	//
-	// the use of an intermediate queue allows us to atomically swap in the new
-	// target and update the target queue reference simultaneously
-	dispatch_queue_attr_t attribute = (self.concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
-	dispatch_queue_t intermediateQueue = dispatch_queue_create("org.jspahrsummers.SafeDispatch.intermediateTargetQueue", attribute);
+	dispatch_sync(_retargetingQueue, ^{
+		// set up an intermediate queue which will target the correct queue
+		//
+		// the use of an intermediate queue allows us to atomically swap in the new
+		// target and update the target queue reference simultaneously
+		dispatch_queue_attr_t attribute = (self.concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
+		dispatch_queue_t intermediateQueue = dispatch_queue_create("org.jspahrsummers.SafeDispatch.intermediateTargetQueue", attribute);
 
-	dispatch_suspend(intermediateQueue);
-	dispatch_set_target_queue(intermediateQueue, (queue ? queue->_dispatchQueue : NULL));
+		dispatch_suspend(intermediateQueue);
+		dispatch_set_target_queue(intermediateQueue, (queue ? queue->_dispatchQueue : NULL));
 
-	// first order of business on the new queue will be to update the target
-	// queue reference
-	dispatch_barrier_async(intermediateQueue, ^{
-		dispatch_queue_set_specific(_dispatchQueue, SDTargetQueueKey, (__bridge_retained void *)queue, &SDQueueRelease);
+		// first order of business on the new queue will be to update the target
+		// queue reference
+		dispatch_barrier_async(intermediateQueue, ^{
+			dispatch_queue_set_specific(_dispatchQueue, SDTargetQueueKey, (__bridge_retained void *)queue, &SDQueueRelease);
 
-		// signal any other thread that might be waiting to retarget
-		[_retargetingCondition signal];
-		[_retargetingCondition unlock];
+			// signal any other thread that might be waiting to retarget
+			[_retargetingCondition signal];
+			[_retargetingCondition unlock];
+		});
+
+		[_retargetingCondition lock];
+		while (_retargetingSuspensionCount > 0)
+			[_retargetingCondition wait];
+
+		dispatch_set_target_queue(_dispatchQueue, intermediateQueue);
+
+		dispatch_resume(intermediateQueue);
+		dispatch_release(intermediateQueue);
 	});
-
-	[_retargetingCondition lock];
-	while (_retargetingSuspensionCount > 0)
-		[_retargetingCondition wait];
-
-	dispatch_set_target_queue(_dispatchQueue, intermediateQueue);
-
-	dispatch_resume(intermediateQueue);
-	dispatch_release(intermediateQueue);
 }
 
 #pragma mark Lifecycle
@@ -209,8 +219,14 @@ static void SDQueueRelease (void *queue) {
 	dispatch_retain(queue);
 	_dispatchQueue = queue;
 
-	if (private)
+	if (private) {
 		_retargetingCondition = [[NSCondition alloc] init];
+		_retargetingQueue = dispatch_queue_create("org.jspahrsummers.SafeDispatch.retargetingQueue", DISPATCH_QUEUE_SERIAL);
+
+		// retargeting is a high priority operation, since it affects how this
+		// queue works
+		dispatch_set_target_queue(_retargetingQueue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
+	}
 
 	_concurrent = concurrent;
 	_private = private;
@@ -246,6 +262,10 @@ static void SDQueueRelease (void *queue) {
 
 - (void)dealloc {
 	if (self.private) {
+		dispatch_barrier_async(_retargetingQueue, ^{});
+		dispatch_release(_retargetingQueue);
+		_retargetingQueue = NULL;
+
 		// asynchronously flush the queue, to avoid any crashes from releasing
 		// it while it still has blocks
 		dispatch_barrier_async(_dispatchQueue, ^{});

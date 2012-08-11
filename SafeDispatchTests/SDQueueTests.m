@@ -193,6 +193,8 @@
 	__block BOOL finished = NO;
 
 	[firstQueue runSynchronously:^{
+		STAssertEqualObjects(firstQueue.targetQueue, secondQueue, @"");
+
 		[secondQueue runSynchronously:^{
 			[firstQueue runSynchronously:^{
 				finished = YES;
