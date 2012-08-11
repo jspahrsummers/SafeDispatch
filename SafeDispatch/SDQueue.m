@@ -41,7 +41,7 @@ static const void * const SDTargetQueueKey = &SDTargetQueueKey;
 	NSCondition *_retargetingCondition;
 
 	/*
-	 * A serial queue to asynchronously execute <targetQueue> updates in order.
+	 * A serial queue to execute <targetQueue> updates in order.
 	 *
 	 * This queue is not used for synchronization. Use <_retargetingCondition>
 	 * instead.
