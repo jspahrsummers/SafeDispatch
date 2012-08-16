@@ -8,6 +8,7 @@
 //
 
 #import "SDQueueTests.h"
+#import "SDGroup.h"
 #import "SDQueue.h"
 #import <libkern/OSAtomic.h>
 
@@ -42,6 +43,31 @@
 		STAssertNotNil([[SDQueue alloc] initWithPriority:priority], @"");
 		STAssertNotNil([[SDQueue alloc] initWithPriority:priority concurrent:YES], @"");
 	}
+}
+
+- (void)testSuspension {
+	SDQueue *queue = [[SDQueue alloc] init];
+	[queue suspend];
+	[queue suspend];
+
+	SDGroup *group = [[SDGroup alloc] initWithDestinationQueue:queue];
+
+	__block BOOL finished = NO;
+	[group runAsynchronously:^{
+		finished = YES;
+	}];
+
+	STAssertFalse([group waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]], @"");
+	STAssertFalse(finished, @"");
+
+	[queue resume];
+
+	STAssertFalse([group waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]], @"");
+	STAssertFalse(finished, @"");
+
+	[queue resume];
+	[group wait];
+	STAssertTrue(finished, @"");
 }
 
 - (void)testSingleRecursion {
