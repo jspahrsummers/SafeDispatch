@@ -27,13 +27,6 @@
 + (SDQueue *)concurrentGlobalQueue;
 
 /**
- * The queue upon which the current code is executing.
- *
- * This may be the <mainQueue>, one of the global queues, or a custom queue.
- */
-+ (SDQueue *)currentQueue;
-
-/**
  * Returns the concurrent global queue of the given priority.
  *
  * @param priority The priority of the dispatch queue. Blocks dispatched to
@@ -93,16 +86,12 @@
 
 /**
  * Whether this queue is a concurrent queue (`YES`) or a serial queue (`NO`).
- *
- * This will always be `NO` on a queue object retrieved with <currentQueue>.
  */
 @property (nonatomic, readonly, getter = isConcurrent) BOOL concurrent;
 
 /**
  * Whether this queue is a private queue (`YES`) or one created by the system
  * (`NO`).
- *
- * This will always be `NO` on a queue object retrieved with <currentQueue>.
  */
 @property (nonatomic, readonly, getter = isPrivate) BOOL private;
 

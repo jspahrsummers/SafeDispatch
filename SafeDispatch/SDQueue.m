@@ -184,10 +184,6 @@ static void SDQueueRelease (void *queue) {
 	return queue;
 }
 
-+ (SDQueue *)currentQueue; {
-	return [self queueWithGCDQueue:dispatch_get_current_queue() concurrent:NO private:NO];
-}
-
 + (SDQueue *)concurrentGlobalQueueWithPriority:(dispatch_queue_priority_t)priority; {
 	dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
 	return [self queueWithGCDQueue:queue concurrent:YES private:NO];

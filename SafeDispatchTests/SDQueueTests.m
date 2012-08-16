@@ -32,7 +32,6 @@
 		DISPATCH_QUEUE_PRIORITY_BACKGROUND
 	};
 
-	STAssertNotNil([SDQueue currentQueue], @"");
 	STAssertNotNil([SDQueue mainQueue], @"");
 	STAssertNotNil([[SDQueue alloc] init], @"");
 
@@ -139,18 +138,18 @@
 }
 
 - (void)testWithGCDQueue {
-	SDQueue *unitTestQueue = [SDQueue currentQueue];
+	SDQueue *mainQueue = [SDQueue mainQueue];
+	[self verifyQueueIsCurrent:mainQueue];
+
 	SDQueue *firstQueue = [[SDQueue alloc] init];
 	SDQueue *secondQueue = [[SDQueue alloc] init];
 
-	[self verifyQueueIsCurrent:unitTestQueue];
-
 	[firstQueue runSynchronously:^{
-		[self verifyQueueIsCurrent:unitTestQueue];
+		[self verifyQueueIsCurrent:mainQueue];
 		[self verifyQueueIsCurrent:firstQueue];
 		
 		[secondQueue runSynchronously:^{
-			[self verifyQueueIsCurrent:unitTestQueue];
+			[self verifyQueueIsCurrent:mainQueue];
 			[self verifyQueueIsCurrent:firstQueue];
 			[self verifyQueueIsCurrent:secondQueue];
 		}];
