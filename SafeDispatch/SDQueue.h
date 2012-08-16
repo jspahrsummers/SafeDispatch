@@ -145,6 +145,22 @@
  */
 
 /**
+ * Suspends the receiver after all currently-queued blocks have finished
+ * executing.
+ *
+ * This method can be invoked multiple times, as long as each invocation is
+ * balanced with a later <resume> message.
+ */
+- (void)suspend;
+
+/**
+ * Resumes dequeing and execution of blocks on the receiver.
+ *
+ * An invocation of this method must match a previous call to <suspend>.
+ */
+- (void)resume;
+
+/**
  * Adds the given block to the end of the queue, after the given delay has
  * passed.
  *

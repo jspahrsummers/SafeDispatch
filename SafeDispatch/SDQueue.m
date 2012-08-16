@@ -374,6 +374,14 @@ static void SDQueueRelease (void *queue) {
 
 #pragma mark Dispatch
 
+- (void)suspend {
+	dispatch_suspend(_dispatchQueue);
+}
+
+- (void)resume {
+	dispatch_resume(_dispatchQueue);
+}
+
 - (void)withGCDQueue:(void (^)(dispatch_queue_t queue, BOOL isCurrentQueue))block {
 	dispatch_retain(_dispatchQueue);
 	[self suspendRetargeting];
