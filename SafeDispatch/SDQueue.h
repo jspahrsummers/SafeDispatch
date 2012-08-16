@@ -194,12 +194,16 @@
  * call stack. The flag is guaranteed to remain valid for the duration of the
  * block.
  *
- * This method can be used to use the underlying GCD queue in a comparatively
+ * This method can be used to access the underlying GCD queue in a comparatively
  * safe way, with the following caveats:
  *
  *	- The queue reference must not escape `block`.
  *	- The queue must not have a new target set with
  *	`dispatch_set_target_queue()`.
+ *	- The results of `dispatch_get_specific()` are unpredictable, because
+ *	synchronous blocks might be executed directly instead of "properly" on their
+ *	target queue. Prefer the more explicit `dispatch_get_queue_specific()`
+ *	instead.
  */
 - (void)withGCDQueue:(void (^)(dispatch_queue_t queue, BOOL isCurrentQueue))block;
 
