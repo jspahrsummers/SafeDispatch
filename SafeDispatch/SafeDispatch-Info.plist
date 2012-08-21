@@ -23,7 +23,7 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Released into the public domain.</string>
+	<string>Copyright (C) 2012 Justin Spahr-Summers</string>
 	<key>NSPrincipalClass</key>
 	<string></string>
 </dict>

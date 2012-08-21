@@ -3,7 +3,8 @@
 //  SafeDispatch
 //
 //  Created by Justin Spahr-Summers on 29.11.11.
-//  Released into the public domain.
+//  Copyright (C) 2012 Justin Spahr-Summers.
+//  Released under the MIT license.
 //
 
 #import <Foundation/Foundation.h>
