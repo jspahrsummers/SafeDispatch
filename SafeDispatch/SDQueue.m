@@ -200,8 +200,8 @@ static void SDQueueRelease (void *queue) {
 			dispatch_queue_set_specific(_dispatchQueue, SDTargetQueueKey, (__bridge_retained void *)newTargetQueue, &SDQueueRelease);
 			dispatch_resume(_dispatchQueue);
 
-			// signal any other thread that might be waiting to retarget
-			[_retargetingCondition signal];
+			// signal any other threads that might be waiting to retarget
+			[_retargetingCondition broadcast];
 			[_retargetingCondition unlock];
 		});
 	});
@@ -356,7 +356,7 @@ static void SDQueueRelease (void *queue) {
 		NSAssert(_retargetingSuspensionCount > 0, @"Unbalanced decrement of _retargetingSuspensionCount on %@", self);
 
 		_retargetingSuspensionCount--;
-		[_retargetingCondition signal];
+		[_retargetingCondition broadcast];
 		[_retargetingCondition unlock];
 	}
 }
