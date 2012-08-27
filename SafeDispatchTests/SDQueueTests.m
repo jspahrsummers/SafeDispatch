@@ -231,4 +231,30 @@
 	STAssertTrue(finished, @"");
 }
 
+- (void)testNonEmptyTargetedQueueDeadlock {
+	SDQueue *firstQueue = [[SDQueue alloc] initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT concurrent:NO label:@"1"];
+	SDQueue *secondQueue = [[SDQueue alloc] initWithPriority:DISPATCH_QUEUE_PRIORITY_DEFAULT concurrent:NO label:@"2"];
+	firstQueue.targetQueue = secondQueue;
+
+	__block BOOL finished = NO;
+	[firstQueue suspend];
+	[firstQueue runAsynchronously:^{
+		[secondQueue runSynchronously:^{
+			[firstQueue runSynchronously:^{
+				finished = YES;
+			}];
+		}];
+	}];
+
+	[[SDQueue concurrentGlobalQueue] runAsynchronously:^{
+		// this is allowed to deadlock while the queue is suspended, so it's
+		// done asynchronously
+		firstQueue.targetQueue = nil;
+	}];
+
+	[firstQueue resume];
+	[firstQueue runBarrierSynchronously:^{}];
+	STAssertTrue(finished, @"");
+}
+
 @end
