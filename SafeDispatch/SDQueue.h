@@ -106,9 +106,9 @@
  * in the order that this setter was invoked.
  *
  * Because the setter for this property is synchronous, it will deadlock if the
- * calling code is executing on the receiver (directly or indirectly). If this
- * may be a possibility, consider setting this property in an asynchronous block
- * dispatched to a global queue.
+ * calling code is executing on the receiver (directly or indirectly), or if the
+ * receiver is suspended. If this may be a possibility, consider setting this
+ * property in an asynchronous block dispatched to a global queue.
  *
  * It is an error to set this property on a queue which is not <private>.
  */
