@@ -136,7 +136,7 @@ static void SDQueueRelease (void *queue) {
 	return (__bridge id)dispatch_queue_get_specific(_dispatchQueue, SDTargetQueueKey);
 }
 
-- (void)setTargetQueue:(SDQueue *)queue {
+- (void)setTargetQueue:(SDQueue *)newTargetQueue {
 	NSAssert(self.private, @"Global queue %@ cannot be retargeted", self);
 
 	/*
@@ -170,34 +170,40 @@ static void SDQueueRelease (void *queue) {
 	 */
 
 	dispatch_sync(_retargetingQueue, ^{
-		// set up an intermediate queue which will target the correct queue
-		//
-		// the use of an intermediate queue allows us to atomically swap in the new
-		// target and update the target queue reference simultaneously
+		// lock out other threads from the target queue stack
+		[_retargetingCondition lock];
+		while (_retargetingSuspensionCount > 0)
+			[_retargetingCondition wait];
+
+		SDQueue *originalTargetQueue = self.targetQueue;
+
 		dispatch_queue_attr_t attribute = (self.concurrent ? DISPATCH_QUEUE_CONCURRENT : DISPATCH_QUEUE_SERIAL);
 		dispatch_queue_t intermediateQueue = dispatch_queue_create("org.jspahrsummers.SafeDispatch.intermediateTargetQueue", attribute);
 
-		dispatch_suspend(intermediateQueue);
-		dispatch_set_target_queue(intermediateQueue, (queue ? queue->_dispatchQueue : NULL));
+		// copy the current target
+		dispatch_set_target_queue(intermediateQueue, (originalTargetQueue ? originalTargetQueue->_dispatchQueue : NULL));
 
-		// first order of business on the new queue will be to update the target
-		// queue reference
-		dispatch_barrier_async(intermediateQueue, ^{
-			dispatch_queue_set_specific(_dispatchQueue, SDTargetQueueKey, (__bridge_retained void *)queue, &SDQueueRelease);
+		dispatch_set_target_queue(_dispatchQueue, intermediateQueue);
+		dispatch_release(intermediateQueue);
+
+		dispatch_barrier_sync(_dispatchQueue, ^{
+			// no blocks will be queued on the intermediateQueue after this
+			// point
+			dispatch_suspend(_dispatchQueue);
+		});
+
+		// because queuing is paused, we can ensure that the two target
+		// references will get updated one after another (with no intervening
+		// blocks from this queue)
+		dispatch_set_target_queue(intermediateQueue, (newTargetQueue ? newTargetQueue->_dispatchQueue : NULL));
+		dispatch_barrier_sync(intermediateQueue, ^{
+			dispatch_queue_set_specific(_dispatchQueue, SDTargetQueueKey, (__bridge_retained void *)newTargetQueue, &SDQueueRelease);
+			dispatch_resume(_dispatchQueue);
 
 			// signal any other thread that might be waiting to retarget
 			[_retargetingCondition signal];
 			[_retargetingCondition unlock];
 		});
-
-		[_retargetingCondition lock];
-		while (_retargetingSuspensionCount > 0)
-			[_retargetingCondition wait];
-
-		dispatch_set_target_queue(_dispatchQueue, intermediateQueue);
-
-		dispatch_resume(intermediateQueue);
-		dispatch_release(intermediateQueue);
 	});
 }
 
