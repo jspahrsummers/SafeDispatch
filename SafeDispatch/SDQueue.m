@@ -218,6 +218,8 @@ static void SDQueueRelease (void *queue) {
 
 	if (private) {
 		_retargetingCondition = [[NSCondition alloc] init];
+		_retargetingCondition.name = @"org.jspahrsummers.SafeDispatch.retargetingCondition";
+
 		_retargetingQueue = dispatch_queue_create("org.jspahrsummers.SafeDispatch.retargetingQueue", DISPATCH_QUEUE_SERIAL);
 
 		// retargeting is a high priority operation, since it affects how this
