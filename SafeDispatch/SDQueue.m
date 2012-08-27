@@ -139,6 +139,36 @@ static void SDQueueRelease (void *queue) {
 - (void)setTargetQueue:(SDQueue *)queue {
 	NSAssert(self.private, @"Global queue %@ cannot be retargeted", self);
 
+	/*
+	 * We need to protect against the following multithreading issues in this
+	 * implementation:
+	 *
+	 *  1. Two threads try to set different targets on the queue simultaneously.
+	 *  To avoid getting into an inconsistent state, the actual GCD target and
+	 *  our queue-specific data should update atomically with respect to other
+	 *  retargetings.
+	 *
+	 *  2. One thread is setting a new target, and another thread is dispatching
+	 *  an asynchronous block at the same time. The block, when it runs, should
+	 *  see a consistent view of the GCD target and the SDQueue target.
+	 *
+	 *  3. One thread is setting a new target, and another thread is dispatching
+	 *  a synchronous block at the same time. The synchronous dispatch should
+	 *  not deadlock, which implies that the target should not change while
+	 *  -runSynchronously: attempts to determine whether the queue is current.
+	 *
+	 *  4. A single thread is setting a new target, and then dispatching a block
+	 *  to the queue. The target must be updated before the block begins to
+	 *  execute.
+	 *
+	 *  5. One thread is running on the queue, and another thread is setting
+	 *  a new target. During the execution of this method on the second thread,
+	 *  the first thread attempts to synchronously dispatch to itself.
+	 *
+	 *  Additionally, the locking and unlocking of the condition must occur on
+	 *  the same thread (so asynchronous dispatches cannot be used).
+	 */
+
 	dispatch_sync(_retargetingQueue, ^{
 		// set up an intermediate queue which will target the correct queue
 		//
