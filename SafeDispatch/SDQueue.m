@@ -569,6 +569,10 @@ static void SDQueueRelease (void *queue) {
 	return [^{
 		NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack before executing an asynchronous block", self);
 
+		// this is necessary to keep a consistent view of the target queue stack
+		// while this block executes
+		[self suspendRetargeting];
+
 		if (prologue)
 			prologue();
 
@@ -577,6 +581,7 @@ static void SDQueueRelease (void *queue) {
 		if (epilogue)
 			epilogue();
 
+		[self resumeRetargeting];
 		NSAssert1(self.concurrent || !dispatch_get_specific(SDDispatchQueueStackKey), @"%@ should not have a queue stack after executing an asynchronous block", self);
 	} copy];
 }
