@@ -1,5 +1,9 @@
 The SafeDispatch framework is a Cocoa wrapper for Grand Central Dispatch that adds important safety features. Not all of GCD is included – the main focus is on improving dispatch queues and groups.
 
+**This framework is no longer supported, and is hard to use correctly.** If
+you're looking for a better way to do concurrency, check out
+[ReactiveCocoa](https://github.com/github/ReactiveCocoa) instead.
+
 # Features
 
 Besides an easy-to-use Objective-C API, this framework adds:
